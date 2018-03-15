@@ -1,0 +1,44 @@
+{
+  "manifest_version": 2,
+  "name": "__MSG_extensionName__",
+  "version": "0.0.1",
+
+  "default_locale": "en",
+  "description": "__MSG_extensionDescription__",
+  "icons": {"128": "icon128.png"},
+
+  "browser_action": {
+    "default_title": "MultiWindow",
+    "default_popup": "popup/index.html"
+  },
+
+  "background": {
+    "scripts": [
+      "lib/Component.js",
+      "background/HTTPHandler.js",
+      "background/index.js"
+    ],
+    "persistent": true
+  },
+
+  "author": "Hinaser",
+  "content_scripts": [{
+    "matches": ["*://*/*"],
+    "js": ["content-script/index.js"],
+    "run_at": "document_end"
+  }],
+  "homepage_url": "https://hinaser.github.io/",
+  "incognito": "spanning",
+  "minimum_chrome_version": "47",
+  "offline_enabled": false,
+  "permissions": [
+    "webRequest",
+    "webRequestBlocking",
+    "webNavigation",
+    "tabs",
+    "*://*/*"
+  ],
+  "short_name": "mw",
+  "version_name": "0.0.1",
+  "web_accessible_resources": []
+}

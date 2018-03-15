@@ -1,0 +1,13 @@
+{
+  "extensionName": {
+    "message": "MultiWindow",
+    "description": "Name of the extension."
+  },
+  "extensionDescription": {
+    "message": "ページの中にページを表示できます",
+    "description": "Description of the extension."
+  },
+  "homepageUrl": {
+    "message": "https://hinaser.github.io/"
+  }
+}
