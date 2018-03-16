@@ -10,13 +10,13 @@ class HttpHandler extends Component {
     
     chrome.webRequest.onBeforeSendHeaders.addListener(
       this.handleRequest.bind(this),
-      {urls: "*://*/*"},
+      {urls: ["*://*/*"]},
       ["blocking", "requestHeaders"]
     );
     
     chrome.webRequest.onHeadersReceived.addListener(
       this.handleResponse.bind(this),
-      {urls: "*://*/*"},
+      {urls: ["*://*/*"]},
       ["blocking", "responseHeaders"]
     );
   }
@@ -68,7 +68,9 @@ class HttpHandler extends Component {
       return ![
         "access-control-allow-origin",
         "access-control-allow-methods",
-        "access-control-allow-headers"
+        "access-control-allow-headers",
+        "x-frame-options",
+        "content-security-policy"
       ].includes(h.name.toLowerCase());
     });
     
