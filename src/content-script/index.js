@@ -20,6 +20,7 @@ void function(){
     height: "10px",
     "background-color": "rgba(255,255,255,0)",
     position: "absolute",
+    "z-index": "999999999"
   };
   
   let defaultHeaderStyle = {
@@ -150,7 +151,7 @@ void function(){
     createResizer(){
       let resizerTemplate = document.createElement("div");
       resizerTemplate.style = getStyle(defaultResizerStyle);
-      resizerTemplate.draggable = true;
+      resizerTemplate.draggable = false;
       let resizerSize = parseInt(defaultResizerStyle.width);
   
       let resizer = {
@@ -166,18 +167,22 @@ void function(){
       
       let that = this;
       
-      let onDragStart = (event) => {
+      let onMouseDown = (event) => {
         this.startPosition = {
           top: event.screenY,
           left: event.screenX,
         };
         
-        console.log("dragstart", this.startPosition);
+        console.log("mousedown", this.startPosition);
         
         event.stopPropagation();
       };
       
-      let onDrag = (event) => {
+      let onMouseMove = (event) => {
+        if((event.buttons & 1) === 0){ // If left mouse button is clicked.
+          return;
+        }
+        
         let move = {
           top: event.screenY - this.startPosition.top,
           left: event.screenX - this.startPosition.left,
@@ -202,114 +207,121 @@ void function(){
   
         event.stopPropagation();
   
-        setTimeout(()=>{
-          switch(event.target.style.cursor.substr(0, 2)){
-            case "n-":
-              subWindow.style.top = (parseInt(subWindow.style.top) + move.top) + "px";
-              subWindow.style.height = (parseInt(subWindow.style.height) - move.top) + "px";
-              break;
-            case "ne":
-              subWindow.style.top = (parseInt(subWindow.style.top) + move.top) + "px";
-              subWindow.style.height = (parseInt(subWindow.style.height) - move.top) + "px";
-              subWindow.style.width = (parseInt(subWindow.style.width) + move.left) + "px";
-              break;
-            case "e-":
-              subWindow.style.width = (parseInt(subWindow.style.width) + move.left) + "px";
-              break;
-            case "se":
-              subWindow.style.height = (parseInt(subWindow.style.height) - move.top) + "px";
-              subWindow.style.width = (parseInt(subWindow.style.width) + move.left) + "px";
-              break;
-            case "s-":
-              subWindow.style.height = (parseInt(subWindow.style.height) + move.top) + "px";
-              break;
-            case "sw":
-              subWindow.style.height = (parseInt(subWindow.style.height) + move.top) + "px";
-              subWindow.style.left = (parseInt(subWindow.style.left) + move.left) + "px";
-              subWindow.style.width = (parseInt(subWindow.style.width) - move.left) + "px";
-              break;
-            case "w-":
-              subWindow.style.left = (parseInt(subWindow.style.left) + move.left) + "px";
-              subWindow.style.width = (parseInt(subWindow.style.width) - move.left) + "px";
-              break;
-            case "nw":
-              subWindow.style.top = (parseInt(subWindow.style.top) + move.top) + "px";
-              subWindow.style.height = (parseInt(subWindow.style.height) - move.top) + "px";
-              subWindow.style.left = (parseInt(subWindow.style.left) + move.left) + "px";
-              subWindow.style.width = (parseInt(subWindow.style.width) - move.left) + "px";
-              break;
-          }
-        }, 0);
+        switch(event.target.style.cursor.substr(0, 2)){
+          case "n-":
+            subWindow.style.top = (parseInt(subWindow.style.top) + move.top) + "px";
+            subWindow.style.height = (parseInt(subWindow.style.height) - move.top) + "px";
+            break;
+          case "ne":
+            subWindow.style.top = (parseInt(subWindow.style.top) + move.top) + "px";
+            subWindow.style.height = (parseInt(subWindow.style.height) - move.top) + "px";
+            subWindow.style.width = (parseInt(subWindow.style.width) + move.left) + "px";
+            break;
+          case "e-":
+            subWindow.style.width = (parseInt(subWindow.style.width) + move.left) + "px";
+            break;
+          case "se":
+            subWindow.style.height = (parseInt(subWindow.style.height) - move.top) + "px";
+            subWindow.style.width = (parseInt(subWindow.style.width) + move.left) + "px";
+            break;
+          case "s-":
+            subWindow.style.height = (parseInt(subWindow.style.height) + move.top) + "px";
+            break;
+          case "sw":
+            subWindow.style.height = (parseInt(subWindow.style.height) + move.top) + "px";
+            subWindow.style.left = (parseInt(subWindow.style.left) + move.left) + "px";
+            subWindow.style.width = (parseInt(subWindow.style.width) - move.left) + "px";
+            break;
+          case "w-":
+            subWindow.style.left = (parseInt(subWindow.style.left) + move.left) + "px";
+            subWindow.style.width = (parseInt(subWindow.style.width) - move.left) + "px";
+            break;
+          case "nw":
+            subWindow.style.top = (parseInt(subWindow.style.top) + move.top) + "px";
+            subWindow.style.height = (parseInt(subWindow.style.height) - move.top) + "px";
+            subWindow.style.left = (parseInt(subWindow.style.left) + move.left) + "px";
+            subWindow.style.width = (parseInt(subWindow.style.width) - move.left) + "px";
+            break;
+        }
       };
       
-      let onDragEnd = (event) => {
+      let onDrag = (event) => {
         console.log(event);
         event.stopPropagation();
+        event.preventDefault();
       };
   
       resizer.top.id = prefix + "resizer-t" + this.index;
       resizer.top.style.top = (-resizerSize) + "px";
       resizer.top.style.left = `calc(50% - ${resizerSize/2}px)`;
       resizer.top.style.cursor = "n-resize";
-      resizer.top.addEventListener("dragstart", onDragStart.bind(this));
-      resizer.top.addEventListener("drag", onDrag.bind(this));
-      resizer.top.addEventListener("dragend", onDragEnd);
+      resizer.top.addEventListener("mousedown", onMouseDown.bind(this));
+      resizer.top.addEventListener("mousemove", onMouseMove.bind(this));
+      resizer.top.addEventListener("dragstart", onDrag);
+      resizer.top.addEventListener("dragend", onDrag);
       
       resizer.topRight.id = prefix + "resizer-tr" + this.index;
       resizer.topRight.style.top = (-resizerSize) + "px";
       resizer.topRight.style.right = (-resizerSize) + "px";
       resizer.topRight.style.cursor = "ne-resize";
-      resizer.topRight.addEventListener("dragstart", onDragStart.bind(this));
-      resizer.topRight.addEventListener("drag", onDrag.bind(this));
-      resizer.topRight.addEventListener("dragend", onDragEnd);
+      resizer.topRight.addEventListener("mousedown", onMouseDown.bind(this));
+      resizer.topRight.addEventListener("mousemove", onMouseMove.bind(this));
+      resizer.topRight.addEventListener("dragstart", onDrag);
+      resizer.topRight.addEventListener("dragend", onDrag);
       
       resizer.right.id = prefix + "resizer-r" + this.index;
       resizer.right.style.top = `calc(50% - ${resizerSize/2}px)`;
       resizer.right.style.right = (-resizerSize) + "px";
       resizer.right.style.cursor = "e-resize";
-      resizer.right.addEventListener("dragstart", onDragStart.bind(this));
-      resizer.right.addEventListener("drag", onDrag.bind(this));
-      resizer.right.addEventListener("dragend", onDragEnd);
+      resizer.right.addEventListener("mousedown", onMouseDown.bind(this));
+      resizer.right.addEventListener("mousemove", onMouseMove.bind(this));
+      resizer.right.addEventListener("dragstart", onDrag);
+      resizer.right.addEventListener("dragend", onDrag);
       
       resizer.bottomRight.id = prefix + "resizer-br" + this.index;
       resizer.bottomRight.style.bottom= (-resizerSize) + "px";
       resizer.bottomRight.style.right= (-resizerSize) + "px";
       resizer.bottomRight.style.cursor = "se-resize";
-      resizer.bottomRight.addEventListener("dragstart", onDragStart.bind(this));
-      resizer.bottomRight.addEventListener("drag", onDrag.bind(this));
-      resizer.bottomRight.addEventListener("dragend", onDragEnd);
+      resizer.bottomRight.addEventListener("mousedown", onMouseDown.bind(this));
+      resizer.bottomRight.addEventListener("mousemove", onMouseMove.bind(this));
+      resizer.bottomRight.addEventListener("dragstart", onDrag);
+      resizer.bottomRight.addEventListener("dragend", onDrag);
       
       resizer.bottom.id = prefix + "resizer-b" + this.index;
       resizer.bottom.style.bottom = (-resizerSize) + "px";
       resizer.bottom.style.left = `calc(50% - ${resizerSize/2}px)`;
       resizer.bottom.style.cursor = "s-resize";
-      resizer.bottom.addEventListener("dragstart", onDragStart.bind(this));
-      resizer.bottom.addEventListener("drag", onDrag.bind(this));
-      resizer.bottom.addEventListener("dragend", onDragEnd);
+      resizer.bottom.addEventListener("mousedown", onMouseDown.bind(this));
+      resizer.bottom.addEventListener("mousemove", onMouseMove.bind(this));
+      resizer.bottom.addEventListener("dragstart", onDrag);
+      resizer.bottom.addEventListener("dragend", onDrag);
       
       resizer.bottomLeft.id = prefix + "resizer-bl" + this.index;
       resizer.bottomLeft.style.bottom = (-resizerSize) + "px";
       resizer.bottomLeft.style.left = (-resizerSize) + "px";
       resizer.bottomLeft.style.cursor = "sw-resize";
-      resizer.bottomLeft.addEventListener("dragstart", onDragStart.bind(this));
-      resizer.bottomLeft.addEventListener("drag", onDrag.bind(this));
-      resizer.bottomLeft.addEventListener("dragend", onDragEnd);
+      resizer.bottomLeft.addEventListener("mousedown", onMouseDown.bind(this));
+      resizer.bottomLeft.addEventListener("mousemove", onMouseMove.bind(this));
+      resizer.bottomLeft.addEventListener("dragstart", onDrag);
+      resizer.bottomLeft.addEventListener("dragend", onDrag);
       
       resizer.left.id = prefix + "resizer-l" + this.index;
       resizer.left.style.top = `calc(50% - ${resizerSize/2}px)`;
       resizer.left.style.left = (-resizerSize) + "px";
       resizer.left.style.cursor = "w-resize";
-      resizer.left.addEventListener("dragstart", onDragStart.bind(this));
-      resizer.left.addEventListener("drag", onDrag.bind(this));
-      resizer.left.addEventListener("dragend", onDragEnd);
+      resizer.left.addEventListener("mousedown", onMouseDown.bind(this));
+      resizer.left.addEventListener("mousemove", onMouseMove.bind(this));
+      resizer.left.addEventListener("dragstart", onDrag);
+      resizer.left.addEventListener("dragend", onDrag);
       
       resizer.topLeft.id = prefix + "resizer-tl" + this.index;
       resizer.topLeft.style.top = (-resizerSize) + "px";
       resizer.topLeft.style.left = (-resizerSize) + "px";
       resizer.topLeft.style.cursor = "nw-resize";
-      resizer.topLeft.addEventListener("dragstart", onDragStart.bind(this));
-      resizer.topLeft.addEventListener("drag", onDrag.bind(this));
-      resizer.topLeft.addEventListener("dragend", onDragEnd);
+      resizer.topLeft.addEventListener("mousedown", onMouseDown.bind(this));
+      resizer.topLeft.addEventListener("mousemove", onMouseMove.bind(this));
+      resizer.topLeft.addEventListener("dragstart", onDrag);
+      resizer.topLeft.addEventListener("dragend", onDrag);
       
       return {resizer};
     }
@@ -389,6 +401,8 @@ void function(){
     }
   
     handleDragStart(e){
+      if(!e.target.isEqualNode(this.components.subWindow)) return;
+      
       e.dataTransfer.setData('text/plain', 'This text may be dragged');
       
       this.startPosition = {
@@ -398,6 +412,8 @@ void function(){
     }
   
     handleDragEnd(e){
+      if(!e.target.isEqualNode(this.components.subWindow)) return;
+      
       let position = this.components.subWindow.getClientRects()[0];
       let move = {
         top: e.screenY - this.startPosition.top,
