@@ -1,6 +1,7 @@
 void function(){
 // Configurations
   let defaultSubWindowStyle = {
+    display: "block",
     "box-sizing": "content-box",
     width: "300px",
     height: "300px",
@@ -10,20 +11,23 @@ void function(){
     top: "0",
     left: "0",
     padding: "0",
-    border: "10px solid rgba(20,250,80,0.3)",
+    border: "1px solid rgba(33,33,33,.4)",
     "z-index": "99999999",
     cursor: ["grab", "-webkit-grab"],
+    "box-shadow": "6px 6px 12px rgba(130,130,130,.3)",
   };
   
   let defaultResizerStyle = {
+    display: "block",
     width: "10px",
     height: "10px",
     "background-color": "rgba(255,255,255,0)",
     position: "absolute",
-    "z-index": "999999999"
+    "z-index": "999999999",
   };
   
   let defaultHeaderStyle = {
+    display: "block",
     "box-sizing": "border-box",
     "font-size": "1rem",
     border: "0px none transparent",
@@ -34,12 +38,15 @@ void function(){
   
   let defaultInputStyle = {
     height: "1.7rem",
-    width: "calc(100% - 2rem)",
+    width: "calc(100% - 3rem)",
     display: "inline-block",
     "font-size": ".8rem",
     "box-sizing": "border-box",
     padding: ".2rem .4rem",
+    "margin-left": "1rem",
     "vertical-align": "middle",
+    border: "1px solid #ccc",
+    "border-radius": "3px",
   };
   
   let defaultRemoveBtnStyle = {
@@ -49,14 +56,17 @@ void function(){
     display: "inline-block",
     "vertical-align": "middle",
     "text-align": "center",
+    "cursor": "pointer",
   };
   
   let defaultBodyStyle = {
+    display: "block",
     height: "calc(100% - 1.7rem - 0.6rem - 1px)",
     position: "relative",
   };
   
   let defaultIframeStyle = {
+    display: "block",
     width: "100%",
     height: "100%",
     padding: "0",
@@ -100,11 +110,10 @@ void function(){
     
       if(!style) style = getStyle(defaultSubWindowStyle);
       if(!src) src = "/";
-    
+      
       let subWindow = document.createElement("div");
       subWindow.id = prefix + "sub-window" + this.index;
       subWindow.style = style;
-      subWindow.draggable = true;
     
       let headerComponents = createHeader();
       let bodyComponents = createBody({src});
@@ -116,13 +125,19 @@ void function(){
       Object.keys(bodyComponents).forEach(c => {
         this.components[c] = bodyComponents[c];
       });
+  
+      let styleElement = document.createElement("style");
+      styleElement.textContent = "#___multiwindow_sub-window0 * {all: initial}";
+      styleElement.style.display = "none";
       
       let {header} = headerComponents;
       let {body} = bodyComponents;
   
+      subWindow.appendChild(styleElement);
       subWindow.appendChild(header);
       subWindow.appendChild(body);
     
+      subWindow.draggable = true;
       subWindow.addEventListener('dragstart', handleDragStart, false);
       subWindow.addEventListener('dragend', handleDragEnd, false);
       
@@ -165,49 +180,58 @@ void function(){
         topLeft: resizerTemplate.cloneNode(),
       };
       
-      let that = this;
+      let resizeState = {
+        active: false,
+        direction: null,
+        top: null,
+        left: null,
+      };
       
-      let onMouseDown = (event) => {
-        this.startPosition = {
-          top: event.screenY,
-          left: event.screenX,
-        };
+      let onMouseDownOnResizer = (event) => {
+        resizeState.active = true;
+        resizeState.direction = event.target.style.cursor.substr(0, 2);
+        resizeState.top = event.screenY;
+        resizeState.left = event.screenX;
         
-        console.log("mousedown", this.startPosition);
+        this.components.iframe.style.pointerEvents = "none";
+        this.components.subWindow.draggable = false;
         
         event.stopPropagation();
       };
       
-      let onMouseMove = (event) => {
-        if((event.buttons & 1) === 0){ // If left mouse button is clicked.
+      let onMouseUpOnWindow = (events) => {
+        if(resizeState.active){
+          this.components.iframe.style.pointerEvents = "auto";
+          this.components.subWindow.draggable = true;
+          resizeState.active = false;
+        }
+      };
+  
+      let that = this;
+      let onMouseMoveOnWindow = (event) => {
+        if((event.buttons & 1) === 0){ // If left mouse button is not clicked.
+          resizeState.active = false;
+          return;
+        }
+        
+        if(!resizeState.active){
           return;
         }
         
         let move = {
-          top: event.screenY - this.startPosition.top,
-          left: event.screenX - this.startPosition.left,
+          top: event.screenY - resizeState.top,
+          left: event.screenX - resizeState.left,
         };
+  
+        resizeState.top = event.screenY;
+        resizeState.left = event.screenX;
+        console.log(move.left, event.screenX);
         
-        if(Math.abs(move.top) > 10 || Math.abs(move.left) > 10){
-          event.stopPropagation();
-          console.log("drag", {pos: this.startPosition, scY: event.screenY, scX: event.screenX});
-          return;
-        }
-  
-        console.log("drag", this.startPosition);
-  
         let subWindow = that.components.subWindow;
-        
-        if(!event.target) return;
-  
-        this.startPosition = {
-          top: event.screenY,
-          left: event.screenX,
-        };
   
         event.stopPropagation();
   
-        switch(event.target.style.cursor.substr(0, 2)){
+        switch(resizeState.direction){
           case "n-":
             subWindow.style.top = (parseInt(subWindow.style.top) + move.top) + "px";
             subWindow.style.height = (parseInt(subWindow.style.height) - move.top) + "px";
@@ -221,7 +245,7 @@ void function(){
             subWindow.style.width = (parseInt(subWindow.style.width) + move.left) + "px";
             break;
           case "se":
-            subWindow.style.height = (parseInt(subWindow.style.height) - move.top) + "px";
+            subWindow.style.height = (parseInt(subWindow.style.height) + move.top) + "px";
             subWindow.style.width = (parseInt(subWindow.style.width) + move.left) + "px";
             break;
           case "s-":
@@ -242,6 +266,8 @@ void function(){
             subWindow.style.left = (parseInt(subWindow.style.left) + move.left) + "px";
             subWindow.style.width = (parseInt(subWindow.style.width) - move.left) + "px";
             break;
+          default:
+            break;
         }
       };
       
@@ -250,13 +276,15 @@ void function(){
         event.stopPropagation();
         event.preventDefault();
       };
+      
+      window.addEventListener("mousemove", onMouseMoveOnWindow);
+      window.addEventListener("mouseup", onMouseUpOnWindow);
   
       resizer.top.id = prefix + "resizer-t" + this.index;
       resizer.top.style.top = (-resizerSize) + "px";
       resizer.top.style.left = `calc(50% - ${resizerSize/2}px)`;
       resizer.top.style.cursor = "n-resize";
-      resizer.top.addEventListener("mousedown", onMouseDown.bind(this));
-      resizer.top.addEventListener("mousemove", onMouseMove.bind(this));
+      resizer.top.addEventListener("mousedown", onMouseDownOnResizer.bind(this));
       resizer.top.addEventListener("dragstart", onDrag);
       resizer.top.addEventListener("dragend", onDrag);
       
@@ -264,8 +292,7 @@ void function(){
       resizer.topRight.style.top = (-resizerSize) + "px";
       resizer.topRight.style.right = (-resizerSize) + "px";
       resizer.topRight.style.cursor = "ne-resize";
-      resizer.topRight.addEventListener("mousedown", onMouseDown.bind(this));
-      resizer.topRight.addEventListener("mousemove", onMouseMove.bind(this));
+      resizer.topRight.addEventListener("mousedown", onMouseDownOnResizer.bind(this));
       resizer.topRight.addEventListener("dragstart", onDrag);
       resizer.topRight.addEventListener("dragend", onDrag);
       
@@ -273,8 +300,7 @@ void function(){
       resizer.right.style.top = `calc(50% - ${resizerSize/2}px)`;
       resizer.right.style.right = (-resizerSize) + "px";
       resizer.right.style.cursor = "e-resize";
-      resizer.right.addEventListener("mousedown", onMouseDown.bind(this));
-      resizer.right.addEventListener("mousemove", onMouseMove.bind(this));
+      resizer.right.addEventListener("mousedown", onMouseDownOnResizer.bind(this));
       resizer.right.addEventListener("dragstart", onDrag);
       resizer.right.addEventListener("dragend", onDrag);
       
@@ -282,8 +308,7 @@ void function(){
       resizer.bottomRight.style.bottom= (-resizerSize) + "px";
       resizer.bottomRight.style.right= (-resizerSize) + "px";
       resizer.bottomRight.style.cursor = "se-resize";
-      resizer.bottomRight.addEventListener("mousedown", onMouseDown.bind(this));
-      resizer.bottomRight.addEventListener("mousemove", onMouseMove.bind(this));
+      resizer.bottomRight.addEventListener("mousedown", onMouseDownOnResizer.bind(this));
       resizer.bottomRight.addEventListener("dragstart", onDrag);
       resizer.bottomRight.addEventListener("dragend", onDrag);
       
@@ -291,8 +316,7 @@ void function(){
       resizer.bottom.style.bottom = (-resizerSize) + "px";
       resizer.bottom.style.left = `calc(50% - ${resizerSize/2}px)`;
       resizer.bottom.style.cursor = "s-resize";
-      resizer.bottom.addEventListener("mousedown", onMouseDown.bind(this));
-      resizer.bottom.addEventListener("mousemove", onMouseMove.bind(this));
+      resizer.bottom.addEventListener("mousedown", onMouseDownOnResizer.bind(this));
       resizer.bottom.addEventListener("dragstart", onDrag);
       resizer.bottom.addEventListener("dragend", onDrag);
       
@@ -300,8 +324,7 @@ void function(){
       resizer.bottomLeft.style.bottom = (-resizerSize) + "px";
       resizer.bottomLeft.style.left = (-resizerSize) + "px";
       resizer.bottomLeft.style.cursor = "sw-resize";
-      resizer.bottomLeft.addEventListener("mousedown", onMouseDown.bind(this));
-      resizer.bottomLeft.addEventListener("mousemove", onMouseMove.bind(this));
+      resizer.bottomLeft.addEventListener("mousedown", onMouseDownOnResizer.bind(this));
       resizer.bottomLeft.addEventListener("dragstart", onDrag);
       resizer.bottomLeft.addEventListener("dragend", onDrag);
       
@@ -309,8 +332,7 @@ void function(){
       resizer.left.style.top = `calc(50% - ${resizerSize/2}px)`;
       resizer.left.style.left = (-resizerSize) + "px";
       resizer.left.style.cursor = "w-resize";
-      resizer.left.addEventListener("mousedown", onMouseDown.bind(this));
-      resizer.left.addEventListener("mousemove", onMouseMove.bind(this));
+      resizer.left.addEventListener("mousedown", onMouseDownOnResizer.bind(this));
       resizer.left.addEventListener("dragstart", onDrag);
       resizer.left.addEventListener("dragend", onDrag);
       
@@ -318,8 +340,7 @@ void function(){
       resizer.topLeft.style.top = (-resizerSize) + "px";
       resizer.topLeft.style.left = (-resizerSize) + "px";
       resizer.topLeft.style.cursor = "nw-resize";
-      resizer.topLeft.addEventListener("mousedown", onMouseDown.bind(this));
-      resizer.topLeft.addEventListener("mousemove", onMouseMove.bind(this));
+      resizer.topLeft.addEventListener("mousedown", onMouseDownOnResizer.bind(this));
       resizer.topLeft.addEventListener("dragstart", onDrag);
       resizer.topLeft.addEventListener("dragend", onDrag);
       
@@ -401,8 +422,6 @@ void function(){
     }
   
     handleDragStart(e){
-      if(!e.target.isEqualNode(this.components.subWindow)) return;
-      
       e.dataTransfer.setData('text/plain', 'This text may be dragged');
       
       this.startPosition = {
@@ -412,8 +431,6 @@ void function(){
     }
   
     handleDragEnd(e){
-      if(!e.target.isEqualNode(this.components.subWindow)) return;
-      
       let position = this.components.subWindow.getClientRects()[0];
       let move = {
         top: e.screenY - this.startPosition.top,
