@@ -1,3 +1,23 @@
 body {
   min-width: 200px
 }
+
+.icon {
+  width: 1em;
+  height: 1em;
+  opacity: .8;
+  display: inline-block;
+}
+
+.createSubWindow{
+  padding: 7px 12px;
+  border-radius: 4px;
+  background-color: rgb(230, 90, 30);
+  color: #fff;
+  cursor: pointer;
+  text-align: center;
+}
+
+.createSubWindow:hover{
+  background-color: rgba(230, 90, 30, .6);
+}

@@ -13,7 +13,7 @@
   "inputPlaceholder": {
     "message": "検索"
   },
-  "frameIsCreated": {
-    "message": "サブウィンドウが作成されました！"
+  "createSubWindow": {
+    "message": "サブウィンドウを開く"
   }
 }

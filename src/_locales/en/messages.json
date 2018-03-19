@@ -13,7 +13,7 @@
   "inputPlaceholder": {
     "message": "search"
   },
-  "frameIsCreated": {
-    "message": "Sub window has bee created"
+  "createSubWindow": {
+    "message": "Open sub window"
   }
 }

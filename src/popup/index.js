@@ -11,7 +11,9 @@ function main(){
     console.log(e);
   }
   
-  requestIframe();
+  document.querySelector(".createSubWindow").addEventListener("click", evt => {
+    requestIframe();
+  });
 }
 
 function requestIframe(){
