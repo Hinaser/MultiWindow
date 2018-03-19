@@ -9,5 +9,11 @@
   },
   "homepageUrl": {
     "message": "https://hinaser.github.io/"
+  },
+  "inputPlaceholder": {
+    "message": "search"
+  },
+  "frameIsCreated": {
+    "message": "Sub window has bee created"
   }
 }

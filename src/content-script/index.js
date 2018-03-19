@@ -51,11 +51,12 @@ void function(){
   
   let defaultInputStyle = {
     height: "30px",
+    "line-height": "30px",
     width: "calc(100% - 30px - 1rem)",
     display: "inline-block",
     "font-size": "14px",
     "box-sizing": "border-box",
-    padding: ".2rem .4rem",
+    padding: "0 .4rem",
     "margin-left": "1rem",
     "vertical-align": "middle",
     border: "1px solid #ccc",
@@ -101,8 +102,10 @@ void function(){
   function onMessageFromBackground(message, sender, sendResponse){
     if(message.type === "CREATE_WINDOW"){
       let subWindow = new SubWindow();
-      let windowElement = subWindow.create({src: "https://google.com"}).subWindow;
+      let windowElement = subWindow.create({src: "about:blank"}).subWindow;
       document.body.appendChild(windowElement);
+  
+      chrome.runtime.sendMessage({type: "WINDOW_CREATED"});
     }
   }
   
@@ -156,11 +159,11 @@ void function(){
         subWindow.appendChild(resizer[key]);
       });
       
-      if(this.constructor.index <= 1){
-        let sheet = this.createSheet();
-        subWindow.appendChild(sheet);
-        this.constructor.sheet = sheet;
+      if(!this.constructor.sheet){
+        this.constructor.sheet = this.createSheet();
       }
+  
+      subWindow.appendChild(this.constructor.sheet);
   
       subWindow.draggable = true;
       subWindow.addEventListener('dragstart', handleDragStart, false);
@@ -375,8 +378,8 @@ void function(){
       let input = document.createElement("input");
       input.id = prefix + "omnibox" + this.index;
       input.style = getStyle(defaultInputStyle);
-      input.placeholder = window.location.protocol + "//";
-      input.value = window.location.protocol + "//";
+      input.placeholder = chrome.i18n.getMessage("inputPlaceholder");
+      input.value = "";
       input.addEventListener("keyup", (event) => {
         if(event.key === "Enter"){
           this.replaceIframe({src: input.value});

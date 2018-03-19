@@ -9,5 +9,11 @@
   },
   "homepageUrl": {
     "message": "https://hinaser.github.io/"
+  },
+  "inputPlaceholder": {
+    "message": "検索"
+  },
+  "frameIsCreated": {
+    "message": "サブウィンドウが作成されました！"
   }
 }

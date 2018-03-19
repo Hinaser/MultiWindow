@@ -2,7 +2,7 @@ class HttpHandler extends Component {
   constructor(props){
     super(props);
     
-    this.state = {requestIds: {}};
+    this.state = {requestIds: {}, tabIds: {}};
   }
   
   startMonitor(){
@@ -19,65 +19,64 @@ class HttpHandler extends Component {
       {urls: ["*://*/*"]},
       ["blocking", "responseHeaders"]
     );
+    
+    chrome.runtime.onMessage.addListener(this.handleMessageFromContent.bind(this));
   }
   
   stopMonitor(){
-    const onBeforeSendHeaders = chrome.webRequest.onBeforeSendHeaders;
+    let onBeforeSendHeaders = chrome.webRequest.onBeforeSendHeaders;
     onBeforeSendHeaders.hasListener(this.handleRequest) &&
-    onBeforeSendHeaders.removeListener(this.handleRequest);
-    
-    const onHeadersReceived = chrome.webRequest.onHeadersReceived;
+      onBeforeSendHeaders.removeListener(this.handleRequest);
+  
+    let onHeadersReceived = chrome.webRequest.onHeadersReceived;
     onHeadersReceived.hasListener(this.handleResponse) &&
-    onHeadersReceived.removeListener(this.handleResponse);
+      onHeadersReceived.removeListener(this.handleResponse);
+    
+    let onMessage = chrome.runtime.onMessage;
+    onMessage.hasListener(this.handleMessageFromContent) &&
+      onMessage.removeListener(this.handleMessageFromContent);
   }
   
   handleRequest(details){
-    let {requestHeaders, frameId, requestId} = details;
+    let {tabIds, requestIds} = this.state;
+    let {requestHeaders, frameId, requestId, tabId} = details;
     
-    if(frameId === 0) return;
+    // Only requests from iframe created by the extension are handled.
+    if(frameId === 0 || !tabIds.hasOwnProperty(tabId)) return;
     
-    let accessControlRequestHeaders = requestHeaders.find(h => (
-      h.name.toLowerCase() === "access-control-request-headers"
-    ));
-    
-    if(accessControlRequestHeaders){
-      let requestIds = this.state.requestIds;
-      requestIds[requestId] = requestHeaders.value;
-      this.setState({requestIds});
-    }
+    requestIds[requestId] = 1;
+    this.setState({requestIds});
   }
   
   handleResponse(details){
-    let {responseHeaders, frameId, requestId} = details;
+    let {requestIds, tabIds} = this.state;
+    let {responseHeaders, frameId, requestId, tabId} = details;
   
-    if(frameId === 0) return;
-    
-    let allowOrigin = {name: "Access-Control-Allow-Origin", value: "*"};
-    let allowMethods = {name: "Access-Control-Allow-Methods", value: "GET, PATCH, PUT, POST, DELETE, HEAD, OPTIONS"};
-    let allowHeaders = {name: "Access-Control-Allow-Headers", value: "*"};
-    
-    if(this.state.requestIds.hasOwnProperty(requestId)){
-      allowHeaders.value = this.state.requestIds[requestId] || "*";
-      this.setState({requestIds: {[requestId]: undefined}});
-    }
-    else{
-      allowHeaders = null;
+    // Only requests from iframe created by the extension are handled.
+    if(frameId === 0 || !tabIds.hasOwnProperty(tabId) || !requestIds.hasOwnProperty(requestId)){
+      return;
     }
     
     responseHeaders = responseHeaders.filter(function(h){
       return ![
-        "access-control-allow-origin",
-        "access-control-allow-methods",
-        "access-control-allow-headers",
         "x-frame-options",
         "content-security-policy"
       ].includes(h.name.toLowerCase());
     });
     
-    allowOrigin && responseHeaders.push(allowOrigin);
-    allowMethods && responseHeaders.push(allowMethods);
-    allowHeaders && responseHeaders.push(allowHeaders);
-    
     return {responseHeaders};
+  }
+  
+  handleMessageFromContent(message, messageSender){
+    switch(message.type){
+      case "WINDOW_CREATED":
+        let tabId = messageSender.tab.id;
+        let {tabIds} = this.state;
+        tabIds[tabId] = 1;
+        this.setState({tabIds});
+        break;
+      default:
+        break;
+    }
   }
 }
