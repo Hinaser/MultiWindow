@@ -1,5 +1,5 @@
 body {
-  min-width: 200px
+  width: 320px
 }
 
 .icon {
@@ -7,6 +7,7 @@ body {
   height: 1em;
   opacity: .8;
   display: inline-block;
+  vertical-align: middle;
 }
 
 .createSubWindow{
@@ -20,4 +21,66 @@ body {
 
 .createSubWindow:hover{
   background-color: rgba(230, 90, 30, .6);
+}
+
+.config {
+  margin: 15px 0;
+  font-size: 1em;
+}
+
+.searchProviders h3 {
+  font-size: 0.8rem;
+}
+
+.add-provider {
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.add-provider .icon{
+  width: 1.4rem;
+  height: 1.4rem;
+}
+
+.add-provider .add {
+  color: rgba(10, 200, 30, .7);
+}
+
+.add-provider .check {
+  color: rgba(10, 200, 30, .7);
+}
+
+.add-provider .cancel {
+  margin-left: 15px;
+  color: rgba(200, 30, 30, .7);
+}
+
+.add-provider .check, .add-provider .cancel {
+  display: none;
+}
+
+.adding {
+  margin-top: 10px;
+}
+
+.adding input[type="text"] {
+  padding: 3px 10px;
+}
+
+.provider-list .row {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.provider-list .row .name {
+  width: 100px;
+}
+
+.provider-list .row .baseurl {
+  width: 200px;
+}
+
+.provider-list .row .col input {
+  width: 100%;
 }

@@ -13,7 +13,19 @@
   "inputPlaceholder": {
     "message": "search"
   },
+  "appTitle": {
+    "message": "MultiWindow"
+  },
+  "appDescription": {
+    "message": "You can open a window inside the active tab page."
+  },
   "createSubWindow": {
     "message": "Open sub window"
+  },
+  "config": {
+    "message": "Configuration"
+  },
+  "providerList": {
+    "message": "Search provider"
   }
 }

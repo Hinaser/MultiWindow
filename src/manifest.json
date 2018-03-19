@@ -36,6 +36,7 @@
     "webRequestBlocking",
     "webNavigation",
     "tabs",
+    "storage",
     "*://*/*"
   ],
   "short_name": "mw",

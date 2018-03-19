@@ -90,6 +90,11 @@ void function(){
   };
   
   let prefix = "___multiwindow_";
+  
+  let defaultSearchProvider = {
+    name: "Google",
+    baseurl: "https://google.com/search?q={{input}}",
+  };
 
 // Main execution context
   main();
@@ -109,10 +114,24 @@ void function(){
     }
   }
   
+  function getSearchProviders(){
+    return new Promise((resolve, reject) => {
+      let key = "providers";
+      
+      chrome.storage.sync.get([key], (items) => {
+        let providers = items[key];
+        resolve(providers);
+      });
+    });
+  }
+  
   class SubWindow {
-    constructor(){
+    constructor(props){
+      if(typeof(props || undefined) !== "object") props = {};
+      
       this.index = typeof(this.constructor.index) === "number" ? this.constructor.index++ : 0;
       this.components = {};
+      this.searchProvider = props.searchProvider || defaultSearchProvider;
   
       ["create", "createHeader", "createBody", "createIframe", "createResizer",
         "replaceIframe", "handleDragStart", "handleDragEnd", "destroy"]
@@ -375,20 +394,8 @@ void function(){
       let header = document.createElement("header");
       header.style = getStyle(defaultHeaderStyle);
     
-      let input = document.createElement("input");
-      input.id = prefix + "omnibox" + this.index;
-      input.style = getStyle(defaultInputStyle);
-      input.placeholder = chrome.i18n.getMessage("inputPlaceholder");
-      input.value = "";
-      input.addEventListener("keyup", (event) => {
-        if(event.key === "Enter"){
-          this.replaceIframe({src: input.value});
-        }
-      }, false);
-      input.addEventListener("dragstart", (event) => {
-        event.stopPropagation();
-      }, true);
-    
+      let {input} = this.createInput();
+      
       let removeBtn = document.createElement("span");
       removeBtn.id = prefix + "remove" + this.index;
       removeBtn.style = getStyle(defaultRemoveBtnStyle);
@@ -405,6 +412,29 @@ void function(){
       }, true);
     
       return {header, input, removeBtn};
+    }
+    
+    createInput(){
+      let input = document.createElement("input");
+      input.id = prefix + "searchbox" + this.index;
+      input.style = getStyle(defaultInputStyle);
+      input.placeholder = chrome.i18n.getMessage("inputPlaceholder");
+      input.value = "";
+      input.addEventListener("keyup", (event) => {
+        let value = input.value;
+        
+        if(event.key === "Enter"){
+          let src = this.searchProvider.baseurl.replace("{{input}}", encodeURIComponent(value));
+          this.replaceIframe({src});
+          return;
+        }
+      }, false);
+      input.addEventListener("dragstart", (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+      }, true);
+      
+      return {input};
     }
   
     createBody(attributes = {}){

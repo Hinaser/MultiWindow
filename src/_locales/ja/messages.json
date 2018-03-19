@@ -13,7 +13,19 @@
   "inputPlaceholder": {
     "message": "検索"
   },
+  "appTitle": {
+    "message": "MultiWindow"
+  },
+  "appDescription": {
+    "message": "今開いているタブの中に新しくウィンドウを作ることができます。"
+  },
   "createSubWindow": {
     "message": "サブウィンドウを開く"
+  },
+  "config": {
+    "message": "設定"
+  },
+  "providerList": {
+    "message": "検索プロバイダー"
   }
 }
