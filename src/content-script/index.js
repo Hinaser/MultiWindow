@@ -17,6 +17,18 @@ void function(){
     "box-shadow": "6px 6px 12px rgba(130,130,130,.3)",
   };
   
+  let defaultSheetStyle = {
+    display: "none",
+    position: "fixed",
+    top: "0",
+    left: "0",
+    width: "100%",
+    height: "100%",
+    "background": "transparent",
+    "border": "none",
+    "z-index": "99999998",
+  };
+  
   let defaultResizerStyle = {
     display: "block",
     width: "10px",
@@ -130,25 +142,29 @@ void function(){
       });
   
       let styleElement = document.createElement("style");
-      styleElement.textContent = "#___multiwindow_sub-window0 * {all: initial}";
+      styleElement.textContent = `#${prefix}sub-window${this.index} * {all: initial}`;
       styleElement.style.display = "none";
       
       let {header} = headerComponents;
       let {body} = bodyComponents;
-  
+      let {resizer} = this.createResizer();
+      
       subWindow.appendChild(styleElement);
       subWindow.appendChild(header);
       subWindow.appendChild(body);
-    
-      subWindow.draggable = true;
-      subWindow.addEventListener('dragstart', handleDragStart, false);
-      subWindow.addEventListener('dragend', handleDragEnd, false);
-      
-      let {resizer} = this.createResizer();
-      
       Object.keys(resizer).forEach(key => {
         subWindow.appendChild(resizer[key]);
       });
+      
+      if(this.constructor.index <= 1){
+        let sheet = this.createSheet();
+        subWindow.appendChild(sheet);
+        this.constructor.sheet = sheet;
+      }
+  
+      subWindow.draggable = true;
+      subWindow.addEventListener('dragstart', handleDragStart, false);
+      subWindow.addEventListener('dragend', handleDragEnd, false);
       
       this.components.resizer = resizer;
       this.components.subWindow = subWindow;
@@ -198,6 +214,7 @@ void function(){
         
         this.components.iframe.style.pointerEvents = "none";
         this.components.subWindow.draggable = false;
+        this.constructor.sheet.style.display = "block";
         
         event.stopPropagation();
       };
@@ -207,6 +224,7 @@ void function(){
           this.components.iframe.style.pointerEvents = "auto";
           this.components.subWindow.draggable = true;
           resizeState.active = false;
+          this.constructor.sheet.style.display = "none";
         }
       };
   
@@ -399,6 +417,16 @@ void function(){
       body.appendChild(iframe);
     
       return {body, iframe};
+    }
+    
+    createSheet(attributes = {}){
+      let {style} = attributes;
+      if(!style) style = getStyle(defaultSheetStyle);
+      
+      let sheet = document.createElement("div");
+      sheet.style = style;
+      
+      return sheet;
     }
   
     handleDragStart(e){
