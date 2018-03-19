@@ -1,0 +1,4 @@
+This project is helped by products listed below.
+
+FontAwesome https://fontawesome.com/license
+
