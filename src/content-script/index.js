@@ -106,11 +106,15 @@ void function(){
   
   function onMessageFromBackground(message, sender, sendResponse){
     if(message.type === "CREATE_WINDOW"){
-      let subWindow = new SubWindow();
-      let windowElement = subWindow.create({src: "about:blank"}).subWindow;
-      document.body.appendChild(windowElement);
+      getSearchProviders().then(providers => {
+        let searchProvider = providers.find(p => p.default);
+        
+        let subWindow = new SubWindow({searchProvider});
+        let windowElement = subWindow.create({src: "about:blank"}).subWindow;
+        document.body.appendChild(windowElement);
   
-      chrome.runtime.sendMessage({type: "WINDOW_CREATED"});
+        chrome.runtime.sendMessage({type: "WINDOW_CREATED"});
+      });
     }
   }
   
@@ -369,7 +373,7 @@ void function(){
   
     createIframe(attributes = {}){
       let {src, style} = attributes;
-    
+      
       if(!src) src = "about:blank";
       if(!style) style = getStyle(defaultIframeStyle);
     
@@ -387,6 +391,8 @@ void function(){
       let body = this.components.body;
     
       body.replaceChild(iframe, oldIframe);
+      this.components.iframe = iframe;
+      
       return {iframe};
     }
   

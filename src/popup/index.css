@@ -44,6 +44,11 @@ body {
   cursor: pointer;
   width: 1.4rem;
   height: 1.4rem;
+  transition: all ease .3s;
+}
+
+.add-provider .icon:hover {
+  opacity: .5;
 }
 
 .add-provider .add {
@@ -63,24 +68,54 @@ body {
   display: none;
 }
 
-.adding {
-  margin-top: 10px;
-}
-
-.adding input[type="text"] {
-  padding: 3px 7px;
-}
-
 .provider-list .row {
   display: flex;
   justify-content: space-between;
   align-items: center;
   width: 100%;
+  font-size: 1.1em;
+}
+
+.provider-list .row + .row {
+  margin-top: 7px;
+}
+
+.provider-list .row.adding {
+  margin-top: 10px;
+}
+
+.provider-list .row.adding input[type="text"] {
+  padding: 3px 7px;
+}
+
+.provider-list .row.adding .name {
+  width: 110px;
+}
+
+.provider-list .row.adding .baseurl {
+  width: 200px;
+}
+
+.provider-list .row .state {
+  transition: all ease .3s;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.provider-list .row .state .default {
+  pointer-events: none;
+}
+
+.provider-list .row .state:hover {
+  opacity: .3;
+}
+
+.provider-list .row .state.active {
+  opacity: 1;
 }
 
 .provider-list .row .name {
   width: 70px;
-  font-size: 1rem;
 }
 
 .provider-list .row .baseurl {

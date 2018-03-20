@@ -24,17 +24,41 @@ function main(){
       }
   
       let providerElements = providers.map(p => {
-        let nameElement = template.content.querySelector(".name");
-        let baseUrlElement = template.content.querySelector(".baseurl");
-        let actionElement = template.content.querySelector(".action");
+        let rowTemplate = document.importNode(template.content, true);
+        let stateElement = rowTemplate.querySelector(".state");
+        let nameElement = rowTemplate.querySelector(".name");
+        let baseUrlElement = rowTemplate.querySelector(".baseurl");
+        let actionElement = rowTemplate.querySelector(".action");
       
+        if(p.default){
+          stateElement.classList.add("active");
+        }
+        else{
+          stateElement.classList.remove("active");
+        }
+        
         nameElement.textContent = p.name;
         baseUrlElement.textContent = p.baseurl;
       
-        let clone = document.importNode(template.content, true);
-        table.appendChild(clone);
+        table.appendChild(rowTemplate);
       });
       resetHeight();
+      
+      let defaultBtns = document.querySelectorAll(".provider-list .state");
+      defaultBtns.forEach(btn => {
+        btn.addEventListener("click", evt => {
+          let row = evt.target.parentElement;
+          let isActive = row.querySelector(".state.active");
+          
+          if(isActive) return;
+          
+          let nameElement = row.querySelector(".name");
+          let name = nameElement.textContent;
+          setSearchProviders({name, isDefault: true}).then(()=>{
+            refreshProviders();
+          });
+        });
+      });
     
       let editBtns = document.querySelectorAll(".provider-list .modify");
       let editBtnAction = evt => {
@@ -46,16 +70,27 @@ function main(){
         let name = nameElement.textContent;
         let baseurl = baseurlElement.textContent;
         
+        let doUpdate = () => {
+          let row = evt.target.parentElement.parentElement;
+          let nameInput = row.querySelector("input.name");
+          let baseurlInput = row.querySelector("input.baseurl");
+          let name = nameInput.value;
+          let oldName = nameInput.dataset.oldName;
+          let baseurl = baseurlInput.value;
+          
+          setSearchProviders({name, baseurl, oldName}).then(()=>{
+            refreshProviders();
+          });
+        };
+        
+        if(row.querySelector("input")){
+          doUpdate();
+          return;
+        }
+        
         let onInput = e => {
           if(e.key === "Enter"){
-            let row = evt.target.parentElement.parentElement;
-            let nameElement = row.querySelector(".name");
-            let baseurlElement = row.querySelector(".baseurl");
-            let name = nameElement.textContent;
-            let baseurl = baseurlElement.textContent;
-            
-            setSearchProviders({name, baseurl});
-            refreshProviders();
+            doUpdate();
           }
         };
   
@@ -63,13 +98,14 @@ function main(){
         nameInput.type = "text";
         nameInput.value = name;
         nameInput.className = "name";
-        nameInput.addEventListener("click", onInput);
+        nameInput.dataset.oldName = name;
+        nameInput.addEventListener("keyup", onInput);
   
         let baseurlInput = document.createElement("input");
         baseurlInput.type = "text";
         baseurlInput.value = baseurl;
         baseurlInput.className = "baseurl";
-        baseurlInput.addEventListener("click", onInput);
+        baseurlInput.addEventListener("keyup", onInput);
   
         let addProviderBtn = document.querySelector(".add-provider .add");
         addProviderBtn.style.display = "none";
@@ -139,8 +175,8 @@ function main(){
   
   addProviderBtn.addEventListener("click", evt => {
     let template = document.querySelector("#addProvider-template");
-    let table = document.querySelector(".provider-list");
     let clone = document.importNode(template.content, true);
+    let table = document.querySelector(".provider-list");
     table.appendChild(clone);
     
     let checkBtn = document.querySelector(".add-provider .check");
@@ -154,13 +190,15 @@ function main(){
   
   let checkBtn = document.querySelector(".add-provider .check");
   checkBtn.addEventListener("click", evt => {
+    if(evt.target !== checkBtn) return;
+    
     let row = document.querySelector(".provider-list .adding");
     let name = row.querySelector(".name input").value;
     let baseurl = row.querySelector(".baseurl input").value;
     let cancelBtn = document.querySelector(".add-provider .cancel");
     
     if(!name || !baseurl){
-      alert("Invalid");
+      alert("Either name or baseurl is empty");
       return;
     }
     
@@ -214,21 +252,61 @@ function getSearchProviders(){
   });
 }
 
-function setSearchProviders({name, baseurl, remove}){
+function setSearchProviders({name, baseurl, isDefault, remove, oldName}){
   return new Promise((resolve, reject) => {
+    if(!name) return reject("REQUIRE_NAME");
+    
+    if(baseurl && !isValidUrl(baseurl)) return reject("INVALID_URL");
+    
     getSearchProviders().then(providers => {
       if(!Array.isArray(providers)) providers = [];
       
       if(remove === true){
         providers = providers.filter(p => p.name !== name);
       }
+      else if(oldName && name !== oldName){
+        let index = providers.findIndex(p => p.name === oldName);
+        let indexNewName = providers.findIndex(p => p.name === name);
+        
+        if(indexNewName > -1){
+          return reject("NAME_ALREADY_USED");
+        }
+  
+        if(index > -1){
+          providers[index].name = name;
+          
+          if(baseurl){
+            providers[index].baseurl = baseurl;
+          }
+          if(isDefault){
+            providers[index].default = true;
+            providers.forEach((p, i) => {
+              if(i !== index) delete providers[i].default;
+            });
+          }
+        }
+      }
       else{
         let index = providers.findIndex(p => p.name === name);
         if(index > -1){
-          providers[index].baseurl = baseurl;
+          if(baseurl){
+            providers[index].baseurl = baseurl;
+          }
+          if(isDefault){
+            providers[index].default = true;
+            providers.forEach((p, i) => {
+              if(i !== index) delete providers[i].default;
+            });
+          }
         }
         else{
-          providers.push({name, baseurl});
+          if(providers.length > 0){
+            providers.push({name, baseurl});
+          }
+          else
+          {
+            providers.push({name, baseurl, default: true});
+          }
         }
       }
       
@@ -237,4 +315,13 @@ function setSearchProviders({name, baseurl, remove}){
       });
     })
   });
+}
+
+function isValidUrl(string){
+  try {
+    new URL(string);
+    return true;
+  } catch (_) {
+    return false;
+  }
 }
