@@ -10,6 +10,10 @@ body {
   vertical-align: middle;
 }
 
+.icon svg {
+  pointer-events: none;
+}
+
 .createSubWindow{
   padding: 7px 12px;
   border-radius: 4px;
@@ -33,11 +37,11 @@ body {
 }
 
 .add-provider {
-  cursor: pointer;
   margin-top: 10px;
 }
 
 .add-provider .icon{
+  cursor: pointer;
   width: 1.4rem;
   height: 1.4rem;
 }
@@ -64,23 +68,62 @@ body {
 }
 
 .adding input[type="text"] {
-  padding: 3px 10px;
+  padding: 3px 7px;
 }
 
 .provider-list .row {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   width: 100%;
 }
 
 .provider-list .row .name {
-  width: 100px;
+  width: 70px;
+  font-size: 1rem;
 }
 
 .provider-list .row .baseurl {
-  width: 200px;
+  width: 180px;
+}
+
+.provider-list .row .action .icon {
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.provider-list .row .action .icon:hover {
+  opacity: .5;
+}
+
+.provider-list .row .action .icon + .icon{
+  margin-left: 4px;
+}
+
+.provider-list .row .action .modify {
+  color:rgba(30, 90, 230, .8);
+}
+
+.provider-list .row .action .remove {
+  color: rgba(200, 30, 30, .7);
+}
+
+.provider-list .row .action .cancel {
+  display: none;
+  color: rgba(200, 30, 30, .7);
 }
 
 .provider-list .row .col input {
   width: 100%;
+}
+
+.provider-list .row input {
+  border-radius: 3px;
+  padding: 3px 7px;
+  border: 1px solid #ccc;
+  box-shadow: 0 0 3px rgba(33,33,33,.3);
+}
+
+.provider-list .row input.name {
+  font-size: unset;
 }
