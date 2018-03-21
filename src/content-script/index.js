@@ -107,7 +107,12 @@ void function(){
   function onMessageFromBackground(message, sender, sendResponse){
     if(message.type === "CREATE_WINDOW"){
       getSearchProviders().then(providers => {
-        let searchProvider = providers.find(p => p.default);
+        let searchProvider;
+        if(providers){
+          searchProvider= providers.find(p => p.default)
+        }
+        
+        if(!searchProvider) searchProvider = defaultSearchProvider;
         
         let subWindow = new SubWindow({searchProvider});
         let windowElement = subWindow.create({src: "about:blank"}).subWindow;
@@ -430,7 +435,15 @@ void function(){
         let value = input.value;
         
         if(event.key === "Enter"){
-          let src = this.searchProvider.baseurl.replace("{{input}}", encodeURIComponent(value));
+          let src;
+          
+          if(isValidUrl(value)){
+            src = value;
+          }
+          else{
+            this.searchProvider.baseurl.replace("{{input}}", encodeURIComponent(value));
+          }
+          
           this.replaceIframe({src});
           return;
         }
@@ -503,5 +516,14 @@ void function(){
       }
       return acc + ";" + val + ":" + styleObj[val];
     }, "");
+  }
+  
+  function isValidUrl(string){
+    try {
+      new URL(string);
+      return true;
+    } catch (_) {
+      return false;
+    }
   }
 }();
