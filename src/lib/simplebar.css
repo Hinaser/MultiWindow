@@ -75,6 +75,7 @@
 .simplebar-track.vertical {
   top: 0;
   opacity: 0;
+  z-index: -1;
 }
 
 .simplebar-track.vertical .simplebar-scrollbar:before {

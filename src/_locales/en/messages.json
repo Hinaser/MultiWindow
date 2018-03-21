@@ -42,6 +42,11 @@
   },
   "homepage": {
     "message": "homepage"
+  },
+  "AboutWindowSize": {
+    "message": "Window size"
+  },
+  "rememberSize": {
+    "message": "Remember window size"
   }
-
 }

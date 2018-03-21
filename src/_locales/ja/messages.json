@@ -42,5 +42,11 @@
   },
   "homepage": {
     "message": "ホームページ"
+  },
+  "AboutWindowSize": {
+    "message": "ウィンドウサイズ"
+  },
+  "rememberSize": {
+    "message": "ウィンドウサイズを記憶する"
   }
 }

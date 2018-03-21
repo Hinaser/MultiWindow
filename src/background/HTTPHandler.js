@@ -51,10 +51,24 @@ class HttpHandler extends Component {
   handleResponse(details){
     let {requestIds, tabIds} = this.state;
     let {responseHeaders, frameId, requestId, tabId} = details;
+    
+    let cspIndex = responseHeaders.findIndex(h => h.name.toLowerCase() === "content-security-policy");
+    if(cspIndex > -1){
+      let policies = responseHeaders[cspIndex].value;
+      policies = policies.split(/\s*;\s*/);
+      policies = policies.filter(p => {
+        let name = p.split(/\s+/)[0];
+        console.log("name", name);
+        return !["frame-src", "child-src", "default-src"].includes(name);
+      });
+      policies.push("default-src *");
+      
+      responseHeaders[cspIndex].value = policies.join(";");
+    }
   
     // Only requests from iframe created by the extension are handled.
     if(frameId === 0 || !tabIds.hasOwnProperty(tabId) || !requestIds.hasOwnProperty(requestId)){
-      return;
+      return {responseHeaders};
     }
     
     responseHeaders = responseHeaders.filter(function(h){

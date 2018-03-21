@@ -11,7 +11,8 @@ function main(){
     console.log(e);
   }
   
-  getHomepage().then(homepage => {
+  getConfig().then(config => {
+    let {homepage} = config;
     let homepageBtn = document.querySelector(".homepage input");
     homepageBtn.value = homepage || "";
     
@@ -24,6 +25,15 @@ function main(){
         let homepage = homepageBtn.value;
         setHomepage({homepage}).catch();
       }, 1000);
+    });
+    
+    let {rememberWindowSize} = config;
+    if(rememberWindowSize !== true) rememberWindowSize = false;
+    let checkbox = document.querySelector("#rememberSize");
+    checkbox.checked = rememberWindowSize;
+    checkbox.addEventListener("change", e => {
+      let rememberWindowSize = checkbox.checked;
+      setRememberWindowSize({rememberWindowSize});
     });
   });
   
@@ -314,6 +324,20 @@ function requestIframe(){
   chrome.tabs.query({active: true, currentWindow: true}, function(tabs){
     let tab = tabs[0];
     chrome.tabs.sendMessage(tab.id, {type: "CREATE_WINDOW"});
+  });
+}
+
+function getConfig(){
+  return new Promise((resolve, reject) => {
+    chrome.storage.sync.get(null, items => {
+      resolve(items);
+    });
+  });
+}
+
+function setRememberWindowSize({rememberWindowSize}){
+  return new Promise((resolve, reject) => {
+    chrome.storage.sync.set({rememberWindowSize}, resolve);
   });
 }
 

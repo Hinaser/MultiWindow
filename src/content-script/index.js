@@ -106,12 +106,9 @@ void function(){
   
   function onMessageFromBackground(message, sender, sendResponse){
     if(message.type === "CREATE_WINDOW"){
-      let p1 = getHomepage();
-      let p2 = getSearchProviders();
-      
-      Promise.all([p1, p2]).then((resolved) => {
-        let homepage = resolved[0] || "about:blank";
-        let providers = resolved[1];
+      getConfig().then(config => {
+        let homepage = config.homepage || "about:blank";
+        let providers = config.providers;
         
         let searchProvider;
         if(providers){
@@ -119,8 +116,11 @@ void function(){
         }
   
         if(!searchProvider) searchProvider = defaultSearchProvider;
-  
-        let subWindow = new SubWindow({searchProvider});
+        
+        let {rememberWindowSize} = config;
+        let {windowSize} = config;
+        
+        let subWindow = new SubWindow({searchProvider, rememberWindowSize, windowSize});
         let windowElement = subWindow.create({src: homepage}).subWindow;
         document.body.appendChild(windowElement);
   
@@ -147,6 +147,14 @@ void function(){
       this.index = typeof(this.constructor.index) === "number" ? this.constructor.index++ : 0;
       this.components = {};
       this.searchProvider = props.searchProvider || defaultSearchProvider;
+      this.rememberWindowSize = props.rememberWindowSize;
+      this.windowSize = props.windowSize;
+      
+      chrome.storage.onChanged.addListener((changes, areaName) => {
+        if(changes.rememberWindowSize){
+          this.rememberWindowSize = changes.rememberWindowSize.newValue;
+        }
+      });
   
       ["create", "createHeader", "createBody", "createIframe", "createResizer",
         "replaceIframe", "handleDragStart", "handleDragEnd", "destroy"]
@@ -166,6 +174,11 @@ void function(){
       let subWindow = document.createElement("div");
       subWindow.id = prefix + "sub-window" + this.index;
       subWindow.style = style;
+      
+      if(this.rememberWindowSize && this.windowSize && this.windowSize.width && this.windowSize.height){
+        subWindow.style.width = this.windowSize.width + "px";
+        subWindow.style.height = this.windowSize.height + "px";
+      }
     
       let headerComponents = createHeader();
       let bodyComponents = createBody({src});
@@ -262,6 +275,11 @@ void function(){
           this.components.subWindow.draggable = true;
           resizeState.active = false;
           this.constructor.sheet.style.display = "none";
+          
+          if(this.rememberWindowSize){
+            let rect = this.components.subWindow.getBoundingClientRect();
+            saveWindowSize(rect);
+          }
         }
       };
   
@@ -514,6 +532,20 @@ void function(){
   }
   
   SubWindow.index = 0;
+  
+  function getConfig(){
+    return new Promise((resolve, reject) => {
+      chrome.storage.sync.get(null, items => {
+        resolve(items);
+      });
+    });
+  }
+  
+  function saveWindowSize({width, height}){
+    return new Promise((resolve, reject) => {
+      chrome.storage.sync.set({windowSize: {height, width}}, resolve);
+    });
+  }
   
   function getHomepage(){
     return new Promise((resolve, reject) => {
