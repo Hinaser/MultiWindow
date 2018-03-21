@@ -27,5 +27,17 @@
   },
   "providerList": {
     "message": "検索プロバイダー"
+  },
+  "nameOrUrlIsEmpty": {
+    "message": "プロバイダー名かURLが未入力です。"
+  },
+  "REQUIRE_NAME": {
+    "message": "プロバイダー名が必要です。"
+  },
+  "INVALID_URL": {
+    "message": "URLのフォーマットが正しくありません。"
+  },
+  "NAME_ALREADY_USED": {
+    "message": "すでに使われている名前です。"
   }
 }

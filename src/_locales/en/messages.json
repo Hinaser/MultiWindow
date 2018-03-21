@@ -27,5 +27,17 @@
   },
   "providerList": {
     "message": "Search provider"
+  },
+  "nameOrUrlIsEmpty": {
+    "message": "Either provider name or url is empty"
+  },
+  "REQUIRE_NAME": {
+    "message": "Provider name is required"
+  },
+  "INVALID_URL": {
+    "message": "The format of url is invalid"
+  },
+  "NAME_ALREADY_USED": {
+    "message": "The provider name is already in use"
   }
 }

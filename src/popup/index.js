@@ -78,9 +78,14 @@ function main(){
           let oldName = nameInput.dataset.oldName;
           let baseurl = baseurlInput.value;
           
-          setSearchProviders({name, baseurl, oldName}).then(()=>{
-            refreshProviders();
-          });
+          setSearchProviders({name, baseurl, oldName})
+            .then(()=>{
+              refreshProviders();
+            })
+            .catch(message => {
+              alert(message);
+            })
+          ;
         };
         
         if(row.querySelector("input")){
@@ -171,13 +176,50 @@ function main(){
     requestIframe();
   });
   
+  let addProvider = () => {
+    let row = document.querySelector(".provider-list .adding");
+    let name = row.querySelector(".name input").value;
+    let baseurl = row.querySelector(".baseurl input").value;
+    let cancelBtn = document.querySelector(".add-provider .cancel");
+  
+    if(!name || !baseurl){
+      alert(chrome.i18n.getMessage("nameOrUrlIsEmpty"));
+      return;
+    }
+  
+    row.remove();
+  
+    addProviderBtn.style.display = "inline-block";
+    checkBtn.style.display = "none";
+    cancelBtn.style.display = "none";
+  
+    setSearchProviders({name, baseurl})
+      .then(()=>{
+        refreshProviders()
+      })
+      .catch(message => {
+        alert(message);
+      })
+    ;
+  };
+  
   let addProviderBtn = document.querySelector(".add-provider .add");
   
   addProviderBtn.addEventListener("click", evt => {
     let template = document.querySelector("#addProvider-template");
-    let clone = document.importNode(template.content, true);
+    let row = document.importNode(template.content, true);
     let table = document.querySelector(".provider-list");
-    table.appendChild(clone);
+    table.appendChild(row);
+    
+    let inputs = table.querySelectorAll(".adding input");
+    console.log(inputs);
+    inputs.forEach(input => {
+      input.addEventListener("keyup", e => {
+        if(e.key === "Enter"){
+          addProvider();
+        }
+      });
+    });
     
     let checkBtn = document.querySelector(".add-provider .check");
     let cancelBtn = document.querySelector(".add-provider .cancel");
@@ -185,32 +227,13 @@ function main(){
     addProviderBtn.style.display = "none";
     checkBtn.style.display = "inline-block";
     cancelBtn.style.display = "inline-block";
-  
   });
   
   let checkBtn = document.querySelector(".add-provider .check");
   checkBtn.addEventListener("click", evt => {
     if(evt.target !== checkBtn) return;
     
-    let row = document.querySelector(".provider-list .adding");
-    let name = row.querySelector(".name input").value;
-    let baseurl = row.querySelector(".baseurl input").value;
-    let cancelBtn = document.querySelector(".add-provider .cancel");
-    
-    if(!name || !baseurl){
-      alert("Either name or baseurl is empty");
-      return;
-    }
-    
-    row.remove();
-    
-    addProviderBtn.style.display = "inline-block";
-    checkBtn.style.display = "none";
-    cancelBtn.style.display = "none";
-    
-    setSearchProviders({name, baseurl}).then(()=>{
-      refreshProviders()
-    });
+    addProvider();
   });
   
   let cancelBtn = document.querySelector(".add-provider .cancel");
@@ -254,9 +277,9 @@ function getSearchProviders(){
 
 function setSearchProviders({name, baseurl, isDefault, remove, oldName}){
   return new Promise((resolve, reject) => {
-    if(!name) return reject("REQUIRE_NAME");
+    if(!name) return reject(chrome.i18n.getMessage("REQUIRE_NAME"));
     
-    if(baseurl && !isValidUrl(baseurl)) return reject("INVALID_URL");
+    if(baseurl && !isValidUrl(baseurl)) return reject(chrome.i18n.getMessage("INVALID_URL"));
     
     getSearchProviders().then(providers => {
       if(!Array.isArray(providers)) providers = [];
@@ -269,7 +292,7 @@ function setSearchProviders({name, baseurl, isDefault, remove, oldName}){
         let indexNewName = providers.findIndex(p => p.name === name);
         
         if(indexNewName > -1){
-          return reject("NAME_ALREADY_USED");
+          return reject(chrome.i18n.getMessage("NAME_ALREADY_USED"));
         }
   
         if(index > -1){

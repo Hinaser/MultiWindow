@@ -441,7 +441,7 @@ void function(){
             src = value;
           }
           else{
-            this.searchProvider.baseurl.replace("{{input}}", encodeURIComponent(value));
+            src = this.searchProvider.baseurl.replace("{{input}}", encodeURIComponent(value));
           }
           
           this.replaceIframe({src});
