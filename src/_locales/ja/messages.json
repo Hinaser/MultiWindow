@@ -11,7 +11,12 @@
     "message": "https://hinaser.github.io/"
   },
   "inputPlaceholder": {
-    "message": "検索"
+    "message": "$providerName$ で検索",
+    "placeholders": {
+      "providerName": {
+        "content": "$1"
+      }
+    }
   },
   "appTitle": {
     "message": "MultiWindow"

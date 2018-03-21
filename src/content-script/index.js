@@ -179,8 +179,10 @@ void function(){
         subWindow.style.width = this.windowSize.width + "px";
         subWindow.style.height = this.windowSize.height + "px";
       }
+      
+      let providerName = this.searchProvider.name;
     
-      let headerComponents = createHeader();
+      let headerComponents = createHeader({providerName});
       let bodyComponents = createBody({src});
       
       Object.keys(headerComponents).forEach(c => {
@@ -426,10 +428,11 @@ void function(){
     }
   
     createHeader(attributes = {}){
+      let {providerName} = attributes;
       let header = document.createElement("header");
       header.style = getStyle(defaultHeaderStyle);
     
-      let {input} = this.createInput();
+      let {input} = this.createInput({providerName});
       
       let removeBtn = document.createElement("span");
       removeBtn.id = prefix + "remove" + this.index;
@@ -449,11 +452,13 @@ void function(){
       return {header, input, removeBtn};
     }
     
-    createInput(){
+    createInput(attributes = {}){
+      let {providerName} = attributes;
+      
       let input = document.createElement("input");
       input.id = prefix + "searchbox" + this.index;
       input.style = getStyle(defaultInputStyle);
-      input.placeholder = chrome.i18n.getMessage("inputPlaceholder");
+      input.placeholder = chrome.i18n.getMessage("inputPlaceholder", [providerName]);
       input.value = "";
       input.addEventListener("keyup", (event) => {
         let value = input.value;
