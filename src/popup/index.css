@@ -80,6 +80,10 @@ body {
   display: none;
 }
 
+.provider-list-wrapper {
+  max-height: 200px;
+}
+
 .provider-list .row {
   display: flex;
   justify-content: space-between;

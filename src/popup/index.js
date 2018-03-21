@@ -58,6 +58,12 @@ function main(){
       
         table.appendChild(rowTemplate);
       });
+      
+      let wrapper = document.querySelector(".searchProviders .provider-list-wrapper");
+      //wrapper.style.height = "auto";
+      //wrapper.style.height = wrapper.getBoundingClientRect().height + "";
+      new SimpleBar(wrapper);
+      
       resetHeight();
       
       let defaultBtns = document.querySelectorAll(".provider-list .state");
