@@ -39,5 +39,9 @@
   },
   "NAME_ALREADY_USED": {
     "message": "The provider name is already in use"
+  },
+  "homepage": {
+    "message": "homepage"
   }
+
 }

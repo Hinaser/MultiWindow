@@ -11,6 +11,22 @@ function main(){
     console.log(e);
   }
   
+  getHomepage().then(homepage => {
+    let homepageBtn = document.querySelector(".homepage input");
+    homepageBtn.value = homepage || "";
+    
+    let timer;
+    homepageBtn.addEventListener("keyup", event => {
+      clearTimeout(timer);
+      timer = setTimeout(()=>{
+        timer = null;
+      
+        let homepage = homepageBtn.value;
+        setHomepage({homepage}).catch();
+      }, 1000);
+    });
+  });
+  
   let refreshProviders = () => {
     getSearchProviders().then(providers => {
       let template = document.querySelector("#searchProvider-template");
@@ -47,6 +63,8 @@ function main(){
       let defaultBtns = document.querySelectorAll(".provider-list .state");
       defaultBtns.forEach(btn => {
         btn.addEventListener("click", evt => {
+          if(document.querySelector(".adding")) return;
+          
           let row = evt.target.parentElement;
           let isActive = row.querySelector(".state.active");
           
@@ -193,6 +211,16 @@ function main(){
     checkBtn.style.display = "none";
     cancelBtn.style.display = "none";
   
+    let editBtns = document.querySelectorAll(".modify");
+    editBtns.forEach(editBtn => {
+      editBtn.style.display = "inline-block";
+    });
+  
+    let removeBtns = document.querySelectorAll(".remove");
+    removeBtns.forEach(removeBtn => {
+      removeBtn.style.display = "inline-block";
+    });
+    
     setSearchProviders({name, baseurl})
       .then(()=>{
         refreshProviders()
@@ -212,7 +240,6 @@ function main(){
     table.appendChild(row);
     
     let inputs = table.querySelectorAll(".adding input");
-    console.log(inputs);
     inputs.forEach(input => {
       input.addEventListener("keyup", e => {
         if(e.key === "Enter"){
@@ -227,6 +254,16 @@ function main(){
     addProviderBtn.style.display = "none";
     checkBtn.style.display = "inline-block";
     cancelBtn.style.display = "inline-block";
+    
+    let editBtns = document.querySelectorAll(".modify");
+    editBtns.forEach(editBtn => {
+      editBtn.style.display = "none";
+    });
+    
+    let removeBtns = document.querySelectorAll(".remove");
+    removeBtns.forEach(removeBtn => {
+      removeBtn.style.display = "none";
+    });
   });
   
   let checkBtn = document.querySelector(".add-provider .check");
@@ -245,6 +282,16 @@ function main(){
     addProviderBtn.style.display = "inline-block";
     checkBtn.style.display = "none";
     cancelBtn.style.display = "none";
+  
+    let editBtns = document.querySelectorAll(".modify");
+    editBtns.forEach(editBtn => {
+      editBtn.style.display = "inline-block";
+    });
+  
+    let removeBtns = document.querySelectorAll(".remove");
+    removeBtns.forEach(removeBtn => {
+      removeBtn.style.display = "inline-block";
+    });
     
     refreshProviders();
   });
@@ -261,6 +308,27 @@ function requestIframe(){
   chrome.tabs.query({active: true, currentWindow: true}, function(tabs){
     let tab = tabs[0];
     chrome.tabs.sendMessage(tab.id, {type: "CREATE_WINDOW"});
+  });
+}
+
+function getHomepage(){
+  return new Promise((resolve, reject) => {
+    let key = "homepage";
+    chrome.storage.sync.get([key], (items)=> {
+      resolve(items[key]);
+    });
+  });
+}
+
+function setHomepage({homepage}){
+  return new Promise((resolve, reject) => {
+    if(!isValidUrl(homepage)){
+      return reject(chrome.i18n.getMessage("INVALID_URL"));
+    }
+  
+    chrome.storage.sync.set({homepage}, ()=> {
+      resolve();
+    });
   });
 }
 

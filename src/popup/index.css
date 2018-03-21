@@ -1,5 +1,5 @@
 body {
-  width: 320px
+  width: 400px;
 }
 
 .icon {
@@ -32,8 +32,20 @@ body {
   font-size: 1em;
 }
 
-.searchProviders h3 {
+.config-item + .config-item {
+  margin-top: 30px;
+}
+
+.config-item h3 {
   font-size: 0.8rem;
+}
+
+.homepage input {
+  border-radius: 3px;
+  padding: 3px 7px;
+  border: 1px solid #ccc;
+  box-shadow: 0 0 3px rgba(33,33,33,.3);
+  width: 260px;
 }
 
 .add-provider {
@@ -93,7 +105,7 @@ body {
 }
 
 .provider-list .row.adding .baseurl {
-  width: 200px;
+  width: 280px;
 }
 
 .provider-list .row .state {
@@ -119,7 +131,7 @@ body {
 }
 
 .provider-list .row .baseurl {
-  width: 180px;
+  width: 240px;
 }
 
 .provider-list .row .action .icon {

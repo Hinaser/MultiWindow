@@ -8,8 +8,8 @@ void function(){
     "background-color": "rgba(255,255,255,1)",
     position: "fixed",
     opacity: "0.95",
-    top: "0",
-    left: "0",
+    bottom: "20px",
+    right: "20px",
     padding: "0",
     border: "1px solid rgba(33,33,33,.4)",
     "z-index": "99999999",
@@ -106,16 +106,22 @@ void function(){
   
   function onMessageFromBackground(message, sender, sendResponse){
     if(message.type === "CREATE_WINDOW"){
-      getSearchProviders().then(providers => {
+      let p1 = getHomepage();
+      let p2 = getSearchProviders();
+      
+      Promise.all([p1, p2]).then((resolved) => {
+        let homepage = resolved[0] || "about:blank";
+        let providers = resolved[1];
+        
         let searchProvider;
         if(providers){
           searchProvider= providers.find(p => p.default)
         }
-        
+  
         if(!searchProvider) searchProvider = defaultSearchProvider;
-        
+  
         let subWindow = new SubWindow({searchProvider});
-        let windowElement = subWindow.create({src: "about:blank"}).subWindow;
+        let windowElement = subWindow.create({src: homepage}).subWindow;
         document.body.appendChild(windowElement);
   
         chrome.runtime.sendMessage({type: "WINDOW_CREATED"});
@@ -508,6 +514,15 @@ void function(){
   }
   
   SubWindow.index = 0;
+  
+  function getHomepage(){
+    return new Promise((resolve, reject) => {
+      let key = "homepage";
+      chrome.storage.sync.get([key], (items)=> {
+        resolve(items[key]);
+      });
+    });
+  }
   
   function getStyle(styleObj){
     return Object.keys(styleObj).reduce((acc, val) => {

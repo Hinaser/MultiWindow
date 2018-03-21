@@ -39,5 +39,8 @@
   },
   "NAME_ALREADY_USED": {
     "message": "すでに使われている名前です。"
+  },
+  "homepage": {
+    "message": "ホームページ"
   }
 }
