@@ -56,12 +56,17 @@ class HttpHandler extends Component {
     if(cspIndex > -1){
       let policies = responseHeaders[cspIndex].value;
       policies = policies.split(/\s*;\s*/);
+      let hasDefaultSrc = false;
+      
       policies = policies.filter(p => {
         let name = p.split(/\s+/)[0];
-        console.log("name", name);
+        if(name === "default-src") hasDefaultSrc = true;
         return !["frame-src", "child-src", "default-src"].includes(name);
       });
-      policies.push("default-src *");
+      
+      if(hasDefaultSrc){
+        policies.push("default-src *");
+      }
       
       responseHeaders[cspIndex].value = policies.join(";");
     }
