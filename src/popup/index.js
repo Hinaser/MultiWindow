@@ -320,6 +320,22 @@ function main(){
     
     refreshProviders();
   });
+  
+  let configHeader = document.querySelector(".config-header");
+  configHeader.addEventListener("click", e => {
+    let configBody = document.querySelector(".config-body");
+    let isClosed = configBody.classList.contains("closed");
+    if(isClosed){
+      configBody.classList.remove("closed");
+      configHeader.removeAttribute("closed");
+    }
+    else{
+      configBody.classList.add("closed");
+      configHeader.setAttribute("closed", "closed");
+    }
+  
+    resetHeight();
+  });
 }
 
 function resetHeight(){

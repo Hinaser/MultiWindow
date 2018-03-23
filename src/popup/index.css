@@ -32,6 +32,47 @@ body {
   font-size: 1em;
 }
 
+.config .config-header {
+  cursor: pointer;
+}
+
+.config .config-header:hover {
+  opacity: .7;
+}
+
+.config-header .icon {
+  display: none;
+}
+
+.config-header[closed] .icon.expand {
+  display: inline-block;
+}
+
+.config-header:not([closed]) .icon.collapse {
+  display: inline-block;
+}
+
+.config-header span {
+  vertical-align: middle;
+}
+
+.config .config-body {
+  transition: all ease .3s;
+}
+
+.config-body.closed {
+  height: 0;
+  opacity: 0;
+}
+
+.config-body.closed * {
+  display: none;
+}
+
+.config .header {
+  cursor: pointer;
+}
+
 .config-item + .config-item {
   margin-top: 15px;
 }
