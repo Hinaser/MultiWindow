@@ -14,7 +14,7 @@ body {
   pointer-events: none;
 }
 
-.createSubWindow{
+.createSubWindow {
   padding: 7px 12px;
   border-radius: 4px;
   background-color: rgb(230, 90, 30);
@@ -23,7 +23,7 @@ body {
   text-align: center;
 }
 
-.createSubWindow:hover{
+.createSubWindow:hover {
   background-color: rgba(230, 90, 30, .6);
 }
 
@@ -33,11 +33,23 @@ body {
 }
 
 .config-item + .config-item {
-  margin-top: 30px;
+  margin-top: 15px;
 }
 
 .config-item h3 {
   font-size: 0.8rem;
+  display: inline-block;
+  margin: .3em 1.2em .3em 0;
+}
+
+.shortcut h3 {
+  display: inline-block;
+  width: 80px;
+}
+
+.homepage h3 {
+  display: inline-block;
+  width: 80px;
 }
 
 .homepage input {
@@ -45,7 +57,7 @@ body {
   padding: 3px 7px;
   border: 1px solid #ccc;
   box-shadow: 0 0 3px rgba(33,33,33,.3);
-  width: 260px;
+  width: 240px;
 }
 
 .add-provider {

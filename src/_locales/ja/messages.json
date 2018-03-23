@@ -45,11 +45,17 @@
   "NAME_ALREADY_USED": {
     "message": "すでに使われている名前です。"
   },
+  "shortcut": {
+    "message": "ショートカット"
+  },
+  "useShortcut": {
+    "message": "ショートカットキー(Ctrl + Space)でウィンドウを開く"
+  },
   "homepage": {
     "message": "ホームページ"
   },
-  "AboutWindowSize": {
-    "message": "ウィンドウサイズ"
+  "AboutWindow": {
+    "message": "ウィンドウ"
   },
   "rememberSize": {
     "message": "ウィンドウサイズを記憶する"

@@ -27,12 +27,21 @@ function main(){
       }, 1000);
     });
     
+    let {useShortcut} = config;
+    if(useShortcut !== true) useShortcut = false;
+    let usCheckbox = document.querySelector("#useShortcut");
+    usCheckbox.checked = useShortcut;
+    usCheckbox.addEventListener("change", e => {
+      let useShortcut = usCheckbox.checked;
+      setUseShortcut({useShortcut});
+    });
+    
     let {rememberWindowSize} = config;
     if(rememberWindowSize !== true) rememberWindowSize = false;
-    let checkbox = document.querySelector("#rememberSize");
-    checkbox.checked = rememberWindowSize;
-    checkbox.addEventListener("change", e => {
-      let rememberWindowSize = checkbox.checked;
+    let rwCheckbox = document.querySelector("#rememberSize");
+    rwCheckbox.checked = rememberWindowSize;
+    rwCheckbox.addEventListener("change", e => {
+      let rememberWindowSize = rwCheckbox.checked;
       setRememberWindowSize({rememberWindowSize});
     });
   });
@@ -332,6 +341,12 @@ function getConfig(){
     chrome.storage.sync.get(null, items => {
       resolve(items);
     });
+  });
+}
+
+function setUseShortcut({useShortcut}){
+  return new Promise((resolve, reject) => {
+    chrome.storage.sync.set({useShortcut}, resolve);
   });
 }
 

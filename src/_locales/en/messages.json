@@ -45,11 +45,17 @@
   "NAME_ALREADY_USED": {
     "message": "The provider name is already in use"
   },
+  "shortcut": {
+    "message": "Shortcut"
+  },
+  "useShortcut": {
+    "message": "Use Shortcut key(Ctrl + Space) to open window"
+  },
   "homepage": {
     "message": "homepage"
   },
-  "AboutWindowSize": {
-    "message": "Window size"
+  "AboutWindow": {
+    "message": "Window"
   },
   "rememberSize": {
     "message": "Remember window size"

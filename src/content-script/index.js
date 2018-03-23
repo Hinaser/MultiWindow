@@ -102,6 +102,17 @@ void function(){
 /////////// Functions ////////////////
   function main(){
     chrome.runtime.onMessage.addListener(onMessageFromBackground);
+    
+    window.addEventListener("keydown", event => {
+      let key = "useShortcut";
+      chrome.storage.sync.get([key], config => {
+        if(config[key] !== true) return;
+        
+        if(event.ctrlKey && event.key === " "){
+          onMessageFromBackground({type: "CREATE_WINDOW"});
+        }
+      });
+    });
   }
   
   function onMessageFromBackground(message, sender, sendResponse){
