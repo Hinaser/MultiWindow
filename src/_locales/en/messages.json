@@ -59,5 +59,11 @@
   },
   "rememberSize": {
     "message": "Remember window size"
+  },
+  "windowOpacity": {
+    "message": "Window opacity"
+  },
+  "onlyShowOnMouseOver": {
+    "message": "Show only on mouse over"
   }
 }

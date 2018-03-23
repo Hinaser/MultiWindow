@@ -1,9 +1,23 @@
 void function(){
 // Configurations
+  let globalStyle = {
+    ".close-btn:hover": "opacity: .5 !important;",
+    ".config-btn:hover": "opacity: .5 !important;",
+    ".config-window::before": "display: table; content: ''; position: absolute; top: -10px; right: 10px; border-bottom: 10px solid rgba(144,144,144,1); border-left: 10px solid transparent; border-right: 10px solid transparent;",
+    ".config-window::after": "display: table; content: ''; position: absolute; top: -9px; right: 11px; border-bottom: 9px solid white; border-left: 9px solid transparent; border-right: 9px solid transparent;",
+    ".config-item": "display: block;",
+    ".config-item + .config-item": "margin-top: 7px;",
+    ".config-item span": "display: inline-block; vertical-align: middle;",
+    ".config-item input[type=\"number\"]": "padding: 3px 10px; display: inline-block; margin-left: 20px; vertical-align: middle; border-top: none; border-left: none; border-right: none;",
+    ".config-item *": "font-size: 12px;",
+    "..naive": "opacity: 0.1;",
+    "..naive:hover": "opacity: 1;",
+  };
+  
   let defaultSubWindowStyle = {
     display: "block",
     "box-sizing": "content-box",
-    width: "300px",
+    width: "550px",
     height: "300px",
     "background-color": "rgba(255,255,255,1)",
     position: "fixed",
@@ -15,6 +29,7 @@ void function(){
     "z-index": "99999999",
     cursor: ["grab", "-webkit-grab"],
     "box-shadow": "6px 6px 12px rgba(130,130,130,.3)",
+    transition: "opacity ease .3s"
   };
   
   let defaultSheetStyle = {
@@ -47,12 +62,13 @@ void function(){
     width: "100%",
     padding: ".3rem 0",
     "background-color": "rgba(240,240,240,.8)",
+    overflow: "visible"
   };
   
   let defaultInputStyle = {
     height: "30px",
     "line-height": "30px",
-    width: "calc(100% - 30px - 1rem)",
+    width: "calc(100% - 32px - 3rem)",
     display: "inline-block",
     "font-size": "14px",
     "box-sizing": "border-box",
@@ -64,15 +80,46 @@ void function(){
     "background-color": "#fff",
   };
   
-  let defaultRemoveBtnStyle = {
+  let defaultConfigBtnStyle = {
     "box-sizing": "border-box",
-    height: "30px",
-    "line-height": "30px",
-    width: "30px",
+    "margin-left": ".5rem",
+    height: "16px",
+    "line-height": "16px",
+    width: "16px",
     display: "inline-block",
     "vertical-align": "middle",
     "text-align": "center",
     "cursor": "pointer",
+    opacity: ".85",
+    color: "rgba(230,10,10,.8)"
+  };
+  
+  let defaultConfigWindowStyle = {
+    width: "260px",
+    display: "block",
+    padding: "9px",
+    position: "absolute",
+    background: "white",
+    border: "1px solid rgba(33,33,33,.4)",
+    "box-shadow": "6px 6px 12px rgba(130,130,130,.3)",
+    "z-index": "2",
+    top: "38px",
+    right: "22px",
+    "border-radius": "3px"
+  };
+  
+  let defaultRemoveBtnStyle = {
+    "box-sizing": "border-box",
+    "margin-left": ".5rem",
+    height: "16px",
+    "line-height": "16px",
+    width: "16px",
+    display: "inline-block",
+    "vertical-align": "middle",
+    "text-align": "center",
+    "cursor": "pointer",
+    opacity: ".85",
+    color: "rgba(230,10,10,.8)"
   };
   
   let defaultBodyStyle = {
@@ -160,7 +207,10 @@ void function(){
       this.searchProvider = props.searchProvider || defaultSearchProvider;
       this.rememberWindowSize = props.rememberWindowSize;
       this.windowSize = props.windowSize;
-      
+      this.listeners = [];
+      this.opacity = "1.0";
+      this.showOnlyMouseOver = false;
+  
       chrome.storage.onChanged.addListener((changes, areaName) => {
         if(changes.rememberWindowSize){
           this.rememberWindowSize = changes.rememberWindowSize.newValue;
@@ -168,7 +218,7 @@ void function(){
       });
   
       ["create", "createHeader", "createBody", "createIframe", "createResizer",
-        "replaceIframe", "handleDragStart", "handleDragEnd", "destroy"]
+        "replaceIframe", "handleDragStart", "handleDragEnd", "destroy", "createConfigWindow"]
         .forEach(method => {
           this[method] = this[method].bind(this);
         });
@@ -205,7 +255,19 @@ void function(){
       });
   
       let styleElement = document.createElement("style");
-      styleElement.textContent = `#${prefix}sub-window${this.index} * {all: initial}`;
+      let styleContent = `#${prefix}sub-window${this.index} :not(.configInput) {all: initial}`;
+      let extraStyle = JSON.parse(JSON.stringify(globalStyle));
+      Object.keys(extraStyle).forEach(key => {
+        if(key.startsWith("..")){
+          let key2 = key.slice(1);
+          styleContent += ` #${prefix}sub-window${this.index}${key2} {${extraStyle[key]}}`;
+        }
+        else{
+          styleContent += ` #${prefix}sub-window${this.index} ${key} {${extraStyle[key]}}`;
+        }
+      });
+      
+      styleElement.textContent = styleContent;
       styleElement.style.display = "none";
       
       let {header} = headerComponents;
@@ -239,6 +301,10 @@ void function(){
       let subWindow = this.components.subWindow;
       subWindow.remove();
       subWindow = null;
+  
+      this.listeners.forEach(l => {
+        window.removeEventListener(l[0], l[1]);
+      });
       
       Object.keys(this.components).forEach(key => {
         this.components[key] = null;
@@ -361,6 +427,9 @@ void function(){
       
       window.addEventListener("mousemove", onMouseMoveOnWindow);
       window.addEventListener("mouseup", onMouseUpOnWindow);
+      
+      this.listeners.push(["mousemove", onMouseMoveOnWindow]);
+      this.listeners.push(["mouseup", onMouseUpOnWindow]);
   
       resizer.top.id = prefix + "resizer-t" + this.index;
       resizer.top.style.top = (-resizerSize) + "px";
@@ -444,23 +513,59 @@ void function(){
       header.style = getStyle(defaultHeaderStyle);
     
       let {input} = this.createInput({providerName});
-      
-      let removeBtn = document.createElement("span");
+  
+      let configBtn = document.createElement("img");
+      configBtn.id = prefix + "config" + this.index;
+      configBtn.classList.add("config-btn");
+      configBtn.style = getStyle(defaultConfigBtnStyle);
+      configBtn.src = "data:image/svg+xml;charset=utf-8;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBmaWxsPSJyZ2JhKDIwMCwyMDAsMjAwLC45KSIgZD0iTTQ0NC43ODggMjkxLjFsNDIuNjE2IDI0LjU5OWM0Ljg2NyAyLjgwOSA3LjEyNiA4LjYxOCA1LjQ1OSAxMy45ODUtMTEuMDcgMzUuNjQyLTI5Ljk3IDY3Ljg0Mi01NC42ODkgOTQuNTg2YTEyLjAxNiAxMi4wMTYgMCAwIDEtMTQuODMyIDIuMjU0bC00Mi41ODQtMjQuNTk1YTE5MS41NzcgMTkxLjU3NyAwIDAgMS02MC43NTkgMzUuMTN2NDkuMTgyYTEyLjAxIDEyLjAxIDAgMCAxLTkuMzc3IDExLjcxOGMtMzQuOTU2IDcuODUtNzIuNDk5IDguMjU2LTEwOS4yMTkuMDA3LTUuNDktMS4yMzMtOS40MDMtNi4wOTYtOS40MDMtMTEuNzIzdi00OS4xODRhMTkxLjU1NSAxOTEuNTU1IDAgMCAxLTYwLjc1OS0zNS4xM2wtNDIuNTg0IDI0LjU5NWExMi4wMTYgMTIuMDE2IDAgMCAxLTE0LjgzMi0yLjI1NGMtMjQuNzE4LTI2Ljc0NC00My42MTktNTguOTQ0LTU0LjY4OS05NC41ODYtMS42NjctNS4zNjYuNTkyLTExLjE3NSA1LjQ1OS0xMy45ODVMNjcuMjEyIDI5MS4xYTE5My40OCAxOTMuNDggMCAwIDEgMC03MC4xOTlsLTQyLjYxNi0yNC41OTljLTQuODY3LTIuODA5LTcuMTI2LTguNjE4LTUuNDU5LTEzLjk4NSAxMS4wNy0zNS42NDIgMjkuOTctNjcuODQyIDU0LjY4OS05NC41ODZhMTIuMDE2IDEyLjAxNiAwIDAgMSAxNC44MzItMi4yNTRsNDIuNTg0IDI0LjU5NWExOTEuNTc3IDE5MS41NzcgMCAwIDEgNjAuNzU5LTM1LjEzVjI1Ljc1OWExMi4wMSAxMi4wMSAwIDAgMSA5LjM3Ny0xMS43MThjMzQuOTU2LTcuODUgNzIuNDk5LTguMjU2IDEwOS4yMTktLjAwNyA1LjQ5IDEuMjMzIDkuNDAzIDYuMDk2IDkuNDAzIDExLjcyM3Y0OS4xODRhMTkxLjU1NSAxOTEuNTU1IDAgMCAxIDYwLjc1OSAzNS4xM2w0Mi41ODQtMjQuNTk1YTEyLjAxNiAxMi4wMTYgMCAwIDEgMTQuODMyIDIuMjU0YzI0LjcxOCAyNi43NDQgNDMuNjE5IDU4Ljk0NCA1NC42ODkgOTQuNTg2IDEuNjY3IDUuMzY2LS41OTIgMTEuMTc1LTUuNDU5IDEzLjk4NUw0NDQuNzg4IDIyMC45YTE5My40ODUgMTkzLjQ4NSAwIDAgMSAwIDcwLjJ6TTMzNiAyNTZjMC00NC4xMTItMzUuODg4LTgwLTgwLTgwcy04MCAzNS44ODgtODAgODAgMzUuODg4IDgwIDgwIDgwIDgwLTM1Ljg4OCA4MC04MHoiLz48L3N2Zz4=";
+      let configWindow;
+      configBtn.addEventListener("click", event => {
+        let dismissConfigWindow;
+        
+        if(configWindow){
+          configWindow.remove();
+          configWindow = null;
+          window.removeEventListener("click", dismissConfigWindow);
+          this.listeners = this.listeners.filter(evt => evt[0] !== "click" && evt[1] !== dismissConfigWindow);
+          return;
+        }
+        
+        configWindow = this.createConfigWindow();
+        
+        dismissConfigWindow = e => {
+          if(!configBtn.contains(e.target) && configWindow && !configWindow.contains(e.target)){
+            configWindow.remove();
+            configWindow = null;
+            window.removeEventListener("click", dismissConfigWindow);
+            this.listeners = this.listeners.filter(evt => evt[0] !== "click" && evt[1] !== dismissConfigWindow);
+          }
+        };
+  
+        window.addEventListener("click", dismissConfigWindow);
+        this.listeners.push(["click", dismissConfigWindow]);
+        
+        header.appendChild(configWindow);
+      });
+  
+      let removeBtn = document.createElement("img");
       removeBtn.id = prefix + "remove" + this.index;
+      removeBtn.classList.add("close-btn");
       removeBtn.style = getStyle(defaultRemoveBtnStyle);
-      removeBtn.textContent = "x";
-      removeBtn.addEventListener("click", (event) => {
+      removeBtn.src = "data:image/svg+xml;charset=utf-8;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzODQgNTEyIj48cGF0aCBmaWxsPSJyZ2JhKDIzMCwyMCwyMCwuOCkiIGQ9Ik0zMjMuMSA0NDFsNTMuOS01My45YzkuNC05LjQgOS40LTI0LjUgMC0zMy45TDI3OS44IDI1Nmw5Ny4yLTk3LjJjOS40LTkuNCA5LjQtMjQuNSAwLTMzLjlMMzIzLjEgNzFjLTkuNC05LjQtMjQuNS05LjQtMzMuOSAwTDE5MiAxNjguMiA5NC44IDcxYy05LjQtOS40LTI0LjUtOS40LTMzLjkgMEw3IDEyNC45Yy05LjQgOS40LTkuNCAyNC41IDAgMzMuOWw5Ny4yIDk3LjJMNyAzNTMuMmMtOS40IDkuNC05LjQgMjQuNSAwIDMzLjlMNjAuOSA0NDFjOS40IDkuNCAyNC41IDkuNCAzMy45IDBsOTcuMi05Ny4yIDk3LjIgOTcuMmM5LjMgOS4zIDI0LjUgOS4zIDMzLjkgMHoiLz48L3N2Zz4=";
+      removeBtn.addEventListener("click", event => {
         this.destroy();
       });
     
       header.appendChild(input);
+      header.appendChild(configBtn);
       header.appendChild(removeBtn);
-      header.addEventListener("dragstart", (event) => {
+      header.addEventListener("dragstart", event => {
         event.stopPropagation();
         event.preventDefault();
       }, true);
     
-      return {header, input, removeBtn};
+      return {header, input, configBtn, removeBtn};
     }
     
     createInput(attributes = {}){
@@ -519,6 +624,59 @@ void function(){
       sheet.style = style;
       
       return sheet;
+    }
+    
+    createConfigWindow(){
+      let configWindow = document.createElement("div");
+      configWindow.classList.add("config-window");
+      configWindow.style = getStyle(defaultConfigWindowStyle);
+  
+      let opacityConfig = document.createElement("div");
+      opacityConfig.className = "config-item";
+      let opacityLabel = document.createElement("span");
+      opacityLabel.textContent = chrome.i18n.getMessage("windowOpacity");
+      let opacityInput = document.createElement("input");
+      opacityInput.className = "configInput";
+      opacityInput.type = "number";
+      opacityInput.value = this.opacity;
+      opacityInput.max = "1";
+      opacityInput.min = "0.1";
+      opacityInput.step = "0.1";
+      opacityConfig.appendChild(opacityLabel);
+      opacityConfig.appendChild(opacityInput);
+      opacityInput.addEventListener("change", e => {
+        this.opacity = opacityInput.value;
+        this.components.subWindow.style.opacity = this.opacity;
+      });
+  
+      let onlyMouseOnConfig = document.createElement("div");
+      onlyMouseOnConfig.classList.add("config-item");
+      let onlyMouseOnInput = document.createElement("input");
+      onlyMouseOnInput.className = "configInput";
+      onlyMouseOnInput.id = prefix + "onlyMouseOver" + this.index;
+      onlyMouseOnInput.type = "checkbox";
+      onlyMouseOnInput.checked = this.showOnlyMouseOver;
+      let onlyMouseOnLabel = document.createElement("label");
+      onlyMouseOnLabel.textContent = chrome.i18n.getMessage("onlyShowOnMouseOver");
+      onlyMouseOnLabel.setAttribute("for", onlyMouseOnInput.id);
+      onlyMouseOnConfig.appendChild(onlyMouseOnInput);
+      onlyMouseOnConfig.appendChild(onlyMouseOnLabel);
+      onlyMouseOnInput.addEventListener("change", e => {
+        this.showOnlyMouseOver = onlyMouseOnInput.checked;
+        if(this.showOnlyMouseOver){
+          this.components.subWindow.style.opacity = "";
+          this.components.subWindow.classList.add("naive");
+        }
+        else{
+          this.components.subWindow.classList.remove("naive");
+          this.components.subWindow.style.opacity = this.opacity;
+        }
+      });
+  
+      configWindow.appendChild(opacityConfig);
+      configWindow.appendChild(onlyMouseOnConfig);
+  
+      return configWindow;
     }
   
     handleDragStart(e){

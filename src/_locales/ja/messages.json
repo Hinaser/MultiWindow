@@ -59,5 +59,11 @@
   },
   "rememberSize": {
     "message": "ウィンドウサイズを記憶する"
+  },
+  "windowOpacity": {
+    "message": "ウィンドウの透明度"
+  },
+  "onlyShowOnMouseOver": {
+    "message": "マウスオーバー時のみ表示する"
   }
 }
