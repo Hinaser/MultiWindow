@@ -6,6 +6,7 @@ function main(){
       let textId = el.dataset.text;
       el.textContent = chrome.i18n.getMessage(textId);
     });
+    resetHeight();
   }
   catch(e){
     console.log(e);
@@ -83,8 +84,6 @@ function main(){
       //wrapper.style.height = wrapper.getBoundingClientRect().height + "";
       new SimpleBar(wrapper);
       
-      resetHeight();
-      
       let defaultBtns = document.querySelectorAll(".provider-list .state");
       defaultBtns.forEach(btn => {
         btn.addEventListener("click", evt => {
@@ -145,14 +144,14 @@ function main(){
         let nameInput = document.createElement("input");
         nameInput.type = "text";
         nameInput.value = name;
-        nameInput.className = "name";
+        nameInput.className = "edit-name";
         nameInput.dataset.oldName = name;
         nameInput.addEventListener("keyup", onInput);
   
         let baseurlInput = document.createElement("input");
         baseurlInput.type = "text";
         baseurlInput.value = baseurl;
-        baseurlInput.className = "baseurl";
+        baseurlInput.className = "edit-baseurl";
         baseurlInput.addEventListener("keyup", onInput);
   
         let addProviderBtn = document.querySelector(".add-provider .add");
@@ -175,6 +174,8 @@ function main(){
         row.replaceChild(nameInput, nameElement);
         row.replaceChild(baseurlInput, baseurlElement);
         row.classList.add("editing");
+        
+        resetHeight();
       };
       
       editBtns.forEach(editBtn => {
@@ -208,6 +209,7 @@ function main(){
         editing.classList.remove("editing");
       }
   
+      resetHeight();
     });
   };
   
@@ -289,6 +291,8 @@ function main(){
     removeBtns.forEach(removeBtn => {
       removeBtn.style.display = "none";
     });
+    
+    resetHeight();
   });
   
   let checkBtn = document.querySelector(".add-provider .check");
@@ -340,7 +344,7 @@ function main(){
 
 function resetHeight(){
   let mainDiv = document.querySelector("#main");
-  let contentHeight = mainDiv.offsetHeight + "px";
+  let contentHeight = (mainDiv.offsetHeight) + "px";
   document.body.style.height = contentHeight;
   document.querySelector("html").style.height = contentHeight;
 }

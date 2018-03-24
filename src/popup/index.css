@@ -1,5 +1,23 @@
-body {
+html {
+  padding: 0;
+  margin: 0;
   width: 400px;
+}
+
+body {
+  padding: 0;
+  margin: 0;
+  width: 400px;
+  font-size: 12px;
+  box-sizing: content-box;
+}
+
+#main {
+  padding: 10px;
+}
+
+#main > h1 {
+  margin-top: 0;
 }
 
 .icon {
@@ -153,16 +171,17 @@ body {
   margin-top: 10px;
 }
 
-.provider-list .row.adding input[type="text"] {
-  padding: 3px 7px;
-}
-
 .provider-list .row.adding .name {
   width: 110px;
 }
 
 .provider-list .row.adding .baseurl {
-  width: 280px;
+  width: 260px;
+}
+
+.provider-list .row.adding input[type="text"] {
+  padding: 3px 7px;
+  box-sizing: border-box;
 }
 
 .provider-list .row .state {
@@ -228,6 +247,12 @@ body {
   box-shadow: 0 0 3px rgba(33,33,33,.3);
 }
 
-.provider-list .row input.name {
+.provider-list .row input.edit-name {
   font-size: unset;
+  width: 70px;
+}
+
+.provider-list .row input.edit-baseurl {
+  font-size: unset;
+  width: 200px;
 }

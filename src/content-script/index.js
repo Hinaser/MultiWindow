@@ -108,6 +108,10 @@ void function(){
     "border-radius": "3px"
   };
   
+  let defaultOpacityInputStyle = {
+    width: "40px"
+  };
+  
   let defaultRemoveBtnStyle = {
     "box-sizing": "border-box",
     "margin-left": ".5rem",
@@ -642,6 +646,7 @@ void function(){
       opacityInput.max = "1";
       opacityInput.min = "0.1";
       opacityInput.step = "0.1";
+      opacityInput.style = getStyle(defaultOpacityInputStyle);
       opacityConfig.appendChild(opacityLabel);
       opacityConfig.appendChild(opacityInput);
       opacityInput.addEventListener("change", e => {
