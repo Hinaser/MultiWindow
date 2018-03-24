@@ -109,7 +109,7 @@ void function(){
   };
   
   let defaultOpacityInputStyle = {
-    width: "40px"
+    width: "60px"
   };
   
   let defaultRemoveBtnStyle = {
