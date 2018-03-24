@@ -16,6 +16,7 @@
     "scripts": [
       "lib/Component.js",
       "background/HTTPHandler.js",
+      "background/InstallHandler.js",
       "background/index.js"
     ],
     "persistent": true
