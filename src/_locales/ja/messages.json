@@ -9,5 +9,61 @@
   },
   "homepageUrl": {
     "message": "https://hinaser.github.io/"
+  },
+  "inputPlaceholder": {
+    "message": "$providerName$ で検索",
+    "placeholders": {
+      "providerName": {
+        "content": "$1"
+      }
+    }
+  },
+  "appTitle": {
+    "message": "MultiWindow"
+  },
+  "appDescription": {
+    "message": "今開いているタブの中に新しくウィンドウを作ることができます。"
+  },
+  "createSubWindow": {
+    "message": "サブウィンドウを開く"
+  },
+  "config": {
+    "message": "設定"
+  },
+  "providerList": {
+    "message": "検索プロバイダー"
+  },
+  "nameOrUrlIsEmpty": {
+    "message": "プロバイダー名かURLが未入力です。"
+  },
+  "REQUIRE_NAME": {
+    "message": "プロバイダー名が必要です。"
+  },
+  "INVALID_URL": {
+    "message": "URLのフォーマットが正しくありません。"
+  },
+  "NAME_ALREADY_USED": {
+    "message": "すでに使われている名前です。"
+  },
+  "shortcut": {
+    "message": "ショートカット"
+  },
+  "useShortcut": {
+    "message": "ショートカットキー(Ctrl + Space)でウィンドウを開く"
+  },
+  "homepage": {
+    "message": "ホームページ"
+  },
+  "AboutWindow": {
+    "message": "ウィンドウ"
+  },
+  "rememberSize": {
+    "message": "ウィンドウサイズを記憶する"
+  },
+  "windowOpacity": {
+    "message": "ウィンドウの透明度"
+  },
+  "onlyShowOnMouseOver": {
+    "message": "マウスオーバー時のみ表示する"
   }
 }

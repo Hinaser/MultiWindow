@@ -9,5 +9,61 @@
   },
   "homepageUrl": {
     "message": "https://hinaser.github.io/"
+  },
+  "inputPlaceholder": {
+    "message": "search with $providerName$",
+    "placeholders": {
+      "providerName": {
+        "content": "$1"
+      }
+    }
+  },
+  "appTitle": {
+    "message": "MultiWindow"
+  },
+  "appDescription": {
+    "message": "You can open a window inside the active tab page."
+  },
+  "createSubWindow": {
+    "message": "Open sub window"
+  },
+  "config": {
+    "message": "Configuration"
+  },
+  "providerList": {
+    "message": "Search provider"
+  },
+  "nameOrUrlIsEmpty": {
+    "message": "Either provider name or url is empty"
+  },
+  "REQUIRE_NAME": {
+    "message": "Provider name is required"
+  },
+  "INVALID_URL": {
+    "message": "The format of url is invalid"
+  },
+  "NAME_ALREADY_USED": {
+    "message": "The provider name is already in use"
+  },
+  "shortcut": {
+    "message": "Shortcut"
+  },
+  "useShortcut": {
+    "message": "Use Shortcut key(Ctrl + Space) to open window"
+  },
+  "homepage": {
+    "message": "homepage"
+  },
+  "AboutWindow": {
+    "message": "Window"
+  },
+  "rememberSize": {
+    "message": "Remember window size"
+  },
+  "windowOpacity": {
+    "message": "Window opacity"
+  },
+  "onlyShowOnMouseOver": {
+    "message": "Show only on mouse over"
   }
 }

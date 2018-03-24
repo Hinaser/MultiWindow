@@ -69,3 +69,5 @@ typings/
 *.iml
 out
 gen
+
+web-ext-artifacts/*

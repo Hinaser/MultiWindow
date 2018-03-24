@@ -1,0 +1,258 @@
+html {
+  padding: 0;
+  margin: 0;
+  width: 400px;
+}
+
+body {
+  padding: 0;
+  margin: 0;
+  width: 400px;
+  font-size: 12px;
+  box-sizing: content-box;
+}
+
+#main {
+  padding: 10px;
+}
+
+#main > h1 {
+  margin-top: 0;
+}
+
+.icon {
+  width: 1em;
+  height: 1em;
+  opacity: .8;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.icon svg {
+  pointer-events: none;
+}
+
+.createSubWindow {
+  padding: 7px 12px;
+  border-radius: 4px;
+  background-color: rgb(230, 90, 30);
+  color: #fff;
+  cursor: pointer;
+  text-align: center;
+}
+
+.createSubWindow:hover {
+  background-color: rgba(230, 90, 30, .6);
+}
+
+.config {
+  margin: 15px 0;
+  font-size: 1em;
+}
+
+.config .config-header {
+  cursor: pointer;
+}
+
+.config .config-header:hover {
+  opacity: .7;
+}
+
+.config-header .icon {
+  display: none;
+}
+
+.config-header[closed] .icon.expand {
+  display: inline-block;
+}
+
+.config-header:not([closed]) .icon.collapse {
+  display: inline-block;
+}
+
+.config-header span {
+  vertical-align: middle;
+}
+
+.config .config-body {
+  transition: all ease .3s;
+}
+
+.config-body.closed {
+  height: 0;
+  opacity: 0;
+}
+
+.config-body.closed * {
+  display: none;
+}
+
+.config .header {
+  cursor: pointer;
+}
+
+.config-item + .config-item {
+  margin-top: 15px;
+}
+
+.config-item h3 {
+  font-size: 0.8rem;
+  display: inline-block;
+  margin: .3em 1.2em .3em 0;
+}
+
+.shortcut h3 {
+  display: inline-block;
+  width: 80px;
+}
+
+.homepage h3 {
+  display: inline-block;
+  width: 80px;
+}
+
+.homepage input {
+  border-radius: 3px;
+  padding: 3px 7px;
+  border: 1px solid #ccc;
+  box-shadow: 0 0 3px rgba(33,33,33,.3);
+  width: 240px;
+}
+
+.add-provider {
+  margin-top: 10px;
+}
+
+.add-provider .icon{
+  cursor: pointer;
+  width: 1.4rem;
+  height: 1.4rem;
+  transition: all ease .3s;
+}
+
+.add-provider .icon:hover {
+  opacity: .5;
+}
+
+.add-provider .add {
+  color: rgba(10, 200, 30, .7);
+}
+
+.add-provider .check {
+  color: rgba(10, 200, 30, .7);
+}
+
+.add-provider .cancel {
+  margin-left: 15px;
+  color: rgba(200, 30, 30, .7);
+}
+
+.add-provider .check, .add-provider .cancel {
+  display: none;
+}
+
+.provider-list-wrapper {
+  max-height: 200px;
+}
+
+.provider-list .row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  font-size: 1.1em;
+}
+
+.provider-list .row + .row {
+  margin-top: 7px;
+}
+
+.provider-list .row.adding {
+  margin-top: 10px;
+}
+
+.provider-list .row.adding .name {
+  width: 110px;
+}
+
+.provider-list .row.adding .baseurl {
+  width: 260px;
+}
+
+.provider-list .row.adding input[type="text"] {
+  padding: 3px 7px;
+  box-sizing: border-box;
+}
+
+.provider-list .row .state {
+  transition: all ease .3s;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.provider-list .row .state .default {
+  pointer-events: none;
+}
+
+.provider-list .row .state:hover {
+  opacity: .3;
+}
+
+.provider-list .row .state.active {
+  opacity: 1;
+}
+
+.provider-list .row .name {
+  width: 70px;
+}
+
+.provider-list .row .baseurl {
+  width: 240px;
+}
+
+.provider-list .row .action .icon {
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.provider-list .row .action .icon:hover {
+  opacity: .5;
+}
+
+.provider-list .row .action .icon + .icon{
+  margin-left: 4px;
+}
+
+.provider-list .row .action .modify {
+  color:rgba(30, 90, 230, .8);
+}
+
+.provider-list .row .action .remove {
+  color: rgba(200, 30, 30, .7);
+}
+
+.provider-list .row .action .cancel {
+  display: none;
+  color: rgba(200, 30, 30, .7);
+}
+
+.provider-list .row .col input {
+  width: 100%;
+}
+
+.provider-list .row input {
+  border-radius: 3px;
+  padding: 3px 7px;
+  border: 1px solid #ccc;
+  box-shadow: 0 0 3px rgba(33,33,33,.3);
+}
+
+.provider-list .row input.edit-name {
+  font-size: unset;
+  width: 70px;
+}
+
+.provider-list .row input.edit-baseurl {
+  font-size: unset;
+  width: 200px;
+}
