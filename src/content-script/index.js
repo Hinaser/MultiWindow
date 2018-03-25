@@ -685,7 +685,8 @@ void function(){
     }
   
     handleDragStart(e){
-      //e.dataTransfer.setData('text/plain', 'This text may be dragged');
+      e.dataTransfer.clearData();
+      e.dataTransfer.setData('text/html', '');
       
       this.startPosition = {
         top: e.screenY,
