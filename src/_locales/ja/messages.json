@@ -65,5 +65,13 @@
   },
   "onlyShowOnMouseOver": {
     "message": "マウスオーバー時のみ表示する"
+  },
+  "SearchSelection": {
+    "message": "$providerName$ で「%s」を 検索",
+    "placeholders": {
+      "providerName": {
+        "content": "$1"
+      }
+    }
   }
 }

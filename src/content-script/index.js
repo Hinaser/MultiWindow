@@ -151,44 +151,49 @@ void function(){
   main();
 
 /////////// Functions ////////////////
-  function main(){
+  function main() {
     chrome.runtime.onMessage.addListener(onMessageFromBackground);
-    
+  
     window.addEventListener("keydown", event => {
       let key = "useShortcut";
       chrome.storage.sync.get([key], config => {
-        if(config[key] !== true) return;
-        
-        if(event.ctrlKey && event.key === " "){
+        if (config[key] !== true) return;
+      
+        if (event.ctrlKey && event.key === " ") {
           onMessageFromBackground({type: "CREATE_WINDOW"});
         }
       });
     });
   }
-  
+    
   function onMessageFromBackground(message, sender, sendResponse){
-    if(message.type === "CREATE_WINDOW"){
-      getConfig().then(config => {
-        let homepage = config.homepage || "about:blank";
-        let providers = config.providers;
-        
-        let searchProvider;
-        if(providers){
-          searchProvider= providers.find(p => p.default)
-        }
-  
-        if(!searchProvider) searchProvider = defaultSearchProvider;
-        
-        let {rememberWindowSize} = config;
-        let {windowSize} = config;
-        
-        let subWindow = new SubWindow({searchProvider, rememberWindowSize, windowSize});
-        let windowElement = subWindow.create({src: homepage}).subWindow;
-        document.body.appendChild(windowElement);
-  
-        chrome.runtime.sendMessage({type: "WINDOW_CREATED"});
-      });
+    let {type, searchText} = message;
+    if(type === "CREATE_WINDOW"){
+      createSubWindow(searchText);
     }
+  }
+  
+  function createSubWindow(searchText){
+    return getConfig().then(config => {
+      let homepage = config.homepage || "about:blank";
+      let providers = config.providers;
+    
+      let searchProvider;
+      if(providers){
+        searchProvider= providers.find(p => p.default);
+      }
+    
+      if(!searchProvider) searchProvider = defaultSearchProvider;
+    
+      let {rememberWindowSize} = config;
+      let {windowSize} = config;
+    
+      let subWindow = new SubWindow({searchProvider, rememberWindowSize, windowSize});
+      let windowElement = subWindow.create({src: homepage, searchText}).subWindow;
+      document.body.appendChild(windowElement);
+    
+      chrome.runtime.sendMessage({type: "WINDOW_CREATED"});
+    });
   }
   
   function getSearchProviders(){
@@ -231,7 +236,7 @@ void function(){
     create(attributes = {}){
       let {handleDragStart, handleDragEnd,
         createHeader, createBody} = this;
-      let {src, style} = attributes;
+      let {src, style, searchText} = attributes;
     
       if(!style) style = getStyle(defaultSubWindowStyle);
       if(!src) src = "/";
@@ -247,7 +252,21 @@ void function(){
       
       let providerName = this.searchProvider.name;
     
-      let headerComponents = createHeader({providerName});
+      let headerComponents;
+      let searchUrl;
+      
+      if(searchText){
+        searchUrl = this.searchProvider.baseurl.replace("{{input}}", encodeURIComponent(searchText));
+        src = searchUrl;
+      }
+      
+      if(searchUrl){
+        headerComponents = createHeader({searchUrl});
+      }
+      else{
+        headerComponents = createHeader({providerName});
+      }
+      
       let bodyComponents = createBody({src});
       
       Object.keys(headerComponents).forEach(c => {
@@ -512,11 +531,11 @@ void function(){
     }
   
     createHeader(attributes = {}){
-      let {providerName} = attributes;
+      let {providerName, searchUrl} = attributes;
       let header = document.createElement("header");
       header.style = getStyle(defaultHeaderStyle);
     
-      let {input} = this.createInput({providerName});
+      let {input} = this.createInput({providerName, searchUrl});
   
       let configBtn = document.createElement("img");
       configBtn.id = prefix + "config" + this.index;
@@ -573,13 +592,16 @@ void function(){
     }
     
     createInput(attributes = {}){
-      let {providerName} = attributes;
+      let {providerName, searchUrl} = attributes;
       
       let input = document.createElement("input");
       input.id = prefix + "searchbox" + this.index;
       input.style = getStyle(defaultInputStyle);
-      input.placeholder = chrome.i18n.getMessage("inputPlaceholder", [providerName]);
       input.value = "";
+      if(searchUrl){
+        input.value = searchUrl;
+      }
+      input.placeholder = chrome.i18n.getMessage("inputPlaceholder", [providerName]);
       input.addEventListener("keyup", (event) => {
         let value = input.value;
         
