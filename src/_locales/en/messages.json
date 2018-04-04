@@ -65,5 +65,13 @@
   },
   "onlyShowOnMouseOver": {
     "message": "Show only on mouse over"
+  },
+  "SearchSelection": {
+    "message": "search '%s' with $providerName$",
+    "placeholders": {
+      "providerName": {
+        "content": "$1"
+      }
+    }
   }
 }
