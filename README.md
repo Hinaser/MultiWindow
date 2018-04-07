@@ -20,3 +20,8 @@ __To build add-on for Firefox, follow the procedure below.__
   web-ext build -s src
   ```
 3. Upload add-on file to [AMO](https://addons.mozilla.org/ja/developers/addons)
+
+## 3rd party library
+
+[simplebar](https://github.com/Grsmto/simplebar/tree/971043679c8762339845fe0ab8b55566bfab4fab)
+
