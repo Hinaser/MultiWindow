@@ -515,7 +515,7 @@ void function(){
       iframe.id = prefix + "iframe" + this.index;
       iframe.src = src;
       iframe.style = style;
-      iframe.sandbox = "allow-forms allow-scripts";
+      iframe.sandbox = "allow-forms allow-same-origin";
       
       return {iframe};
     }
