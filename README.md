@@ -1,3 +1,7 @@
+# Notice
+I archive this repository and remove the addon from addon stores because I cannot spare my time maintaining the code.  
+If you want to keep using this addon, feel free to fork or copy source code to build.
+
 # Build note
 
 __To build add-on for Chrome, follow the procedure below.__
